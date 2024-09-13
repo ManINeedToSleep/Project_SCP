@@ -101,7 +101,6 @@ div.text a:hover::before {
 
 img {
     float: right;
-    margin-right: 15px;
     margin-bottom: 10px;
     height: auto;
     max-width: 400px;
@@ -112,3 +111,4 @@ img {
     margin-right: 15px;
     margin-bottom: 10px;
 }
+

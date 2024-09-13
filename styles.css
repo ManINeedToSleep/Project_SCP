@@ -16,6 +16,11 @@ div.terminal {
     z-index: 9999; /* Ensure it's above other content */
 }
 
+.container {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
 /* Scanline styling for animation */
 div.scanline {
     width: 100%;
