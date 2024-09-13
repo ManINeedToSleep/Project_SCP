@@ -1,0 +1,116 @@
+/* Terminal styling for full-page coverage without borders */
+div.terminal {
+    border: 0; /* Remove borders */
+    border-radius: 0; /* Remove border radius */
+    background-color: #131;
+    background-image: radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #121);
+    background-position: center;
+    display: block;
+    box-shadow: inset 0 0 10em 1em rgba(0,0,0,0.5); /* Keeps the shadow for depth */
+    overflow: hidden;
+    position: fixed; /* Ensure it covers the whole viewport */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999; /* Ensure it's above other content */
+}
+
+/* Scanline styling for animation */
+div.scanline {
+    width: 100%;
+    height: 60px;
+    position: absolute; /* Position correctly within the terminal */
+    top: 0;
+    pointer-events: none;
+    -webkit-animation: scan 12s linear 0s infinite;
+    animation: scan 12s linear 0s infinite;
+    background: linear-gradient(to bottom, rgba(56, 112, 82,0), rgba(56, 112, 82,0.1)) !important;
+}
+
+div.terminal blockquote {
+    background-color: black;
+    border: double 3px #80FF80;
+    width: 875px;
+    margin-right: 25%;
+    margin-left: 16%;
+    display: block;
+}
+
+/* Text styling inside the terminal */
+div.text {
+    color: rgba(128,255,128,0.8);
+    padding-left: 2em;
+    padding-top: 5%; /* Adjust for better positioning */
+    font-family: monospace;
+    font-size: 1.2em;
+    text-align: center;
+    position: relative; /* Ensure relative positioning for proper alignment */
+}
+
+/* Keyframes for scanline animation */
+@-webkit-keyframes scan {
+    from { transform: translateY(-10%); }
+    to { transform: translateY(5000%); }
+}
+
+@keyframes scan {
+    from { transform: translateY(-10%); }
+    to { transform: translateY(5000%); }
+}
+
+/* Styling for links inside the terminal */
+div.text a {
+    color: #90EE90;
+    text-decoration: none;
+    background: transparent;
+}
+
+div.text a:hover {
+    color: #131;
+    text-decoration: underline;
+    background-color: #80FF80;
+    padding: 1px;
+}
+
+div.text a:hover::before {
+    content: "> ";
+}
+
+/* Styles for loading dots */
+.dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Use full viewport height */
+    width: 100vw;  /* Use full viewport width */
+    position: absolute; /* Position absolutely to center in parent */
+    top: 0;
+    left: 0;
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    margin: 0 5px;
+    border-radius: 50%;
+    background: #80FF80;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
