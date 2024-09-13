@@ -7,14 +7,15 @@ div.terminal {
     background-position: center;
     display: block;
     box-shadow: inset 0 0 10em 1em rgba(0,0,0,0.5); /* Keeps the shadow for depth */
-    overflow: hidden;
+    overflow: auto; /* Allow scrolling if content overflows */
     position: fixed; /* Ensure it covers the whole viewport */
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; /* Ensure it covers the viewport initially */
     z-index: 9999; /* Ensure it's above other content */
 }
+
 
 /* Scanline styling for animation */
 div.scanline {
@@ -28,12 +29,21 @@ div.scanline {
     background: linear-gradient(to bottom, rgba(56, 112, 82,0), rgba(56, 112, 82,0.1)) !important;
 }
 
+.container {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+hr {
+    margin-right: 10px;
+}
+
 div.terminal blockquote {
     background-color: black;
     border: double 3px #80FF80;
-    width: 875px;
+    width: 96.5%;
     margin-right: 25%;
-    margin-left: 16%;
+    margin-left: 0%;
     display: block;
 }
 
@@ -41,11 +51,13 @@ div.terminal blockquote {
 div.text {
     color: rgba(128,255,128,0.8);
     padding-left: 2em;
-    padding-top: 5%; /* Adjust for better positioning */
+    padding-top: 10px; /* Adjust for better positioning */
+    margin-left: 10px;
+    margin-right: 15px;
     font-family: monospace;
     font-size: 1.2em;
-    text-align: center;
-    position: relative; /* Ensure relative positioning for proper alignment */
+    text-align: left;
+    position: relative; /*Ensure relative positioning for proper alignment */
 }
 
 /* Keyframes for scanline animation */
@@ -77,34 +89,6 @@ div.text a:hover::before {
     content: "> ";
 }
 
-/* Styles for loading dots */
-.dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Use full viewport height */
-    width: 100vw;  /* Use full viewport width */
-    position: absolute; /* Position absolutely to center in parent */
-    top: 0;
-    left: 0;
-}
-
-.dot {
-    width: 15px;
-    height: 15px;
-    margin: 0 5px;
-    border-radius: 50%;
-    background: #80FF80;
-    animation: bounce 1.5s infinite ease-in-out;
-}
-
-.dot:nth-child(2) {
-    animation-delay: 0.3s;
-}
-
-.dot:nth-child(3) {
-    animation-delay: 0.6s;
-}
 
 @keyframes bounce {
     0%, 100% {
@@ -113,4 +97,18 @@ div.text a:hover::before {
     50% {
         transform: translateY(-20px);
     }
+}
+
+img {
+    float: right;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    height: auto;
+    max-width: 400px;
+}
+
+.scp096-college-student-sighting {
+    float: right;
+    margin-right: 15px;
+    margin-bottom: 10px;
 }

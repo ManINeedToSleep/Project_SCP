@@ -5,5 +5,5 @@ document.addEventListener("DOMContentLoaded", function() {
     setTimeout(function() {
         loadingScreen.style.display = 'none'; // Hide the loading screen
         mainContent.style.display = 'block';  // Show the main content
-    }, 10); // 10 seconds delay
+    }, 0); // 10 seconds delay
 });
