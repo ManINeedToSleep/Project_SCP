@@ -1,19 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     var loadingScreen = document.getElementById('loading-screen');
     var mainContent = document.getElementById('main-content');
+    var otherScreen = document.getElementById('other-screen');
+
     
     setTimeout(function() {
         loadingScreen.style.display = 'none'; // Hide the loading screen
         mainContent.style.display = 'block';  // Show the main content
     }, 5000); // 10 seconds delay
-});
 
-document.addEventListener("DOMContentLoaded", function() {
-    var loadingScreen = document.getElementById('other-screen');
-    var mainContent = document.getElementById('main-content');
-    
     setTimeout(function() {
-        loadingScreen.style.display = 'none'; // Hide the loading screen
+        otherScreen.style.display = 'none'; // Hide the loading screen
         mainContent.style.display = 'block';  // Show the main content
     }, 0); // 10 seconds delay
 });
