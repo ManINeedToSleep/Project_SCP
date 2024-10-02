@@ -1,36 +1,30 @@
+let web_location = window.location.href
+
+
 document.addEventListener("DOMContentLoaded", function() {
-    let web_location = window.location.href
     var loadingScreen = document.getElementById('loading-screen');
-    var otherLoadingScreen = document.getElementById('other-screen');
     var mainContent = document.getElementById('main-content');
-
-    if (web_location === "http://127.0.0.1:5501/index.html") {
-        setTimeout(function() {
-            loadingScreen.style.display = 'none'; // Hide the loading screen
-            mainContent.style.display = 'block';  // Show the main content
-        }, 5000); // 5 seconds delay
-    }
-    else {
-        setTimeout(function() {
-            otherLoadingScreen.style.display = 'none'; // Hide the loading screen
-            mainContent.style.display = 'block';  // Show the main content
-        }, 0); // 0 seconds delay
-    }
-
-    if (web_location === "http://127.0.0.1:5501/SCP096.html") {
-        const notesToggle = document.getElementById('notes-toggle');
-        const notesList = document.getElementById('notes-list');
     
-        notesToggle.addEventListener('click', () => {
-            notesList.style.display = notesList.style.display === 'none' ? 'block' : 'none'; // Toggle notes list visibility
-        });
-    };
+    setTimeout(function() {
+        loadingScreen.style.display = 'none'; // Hide the loading screen
+        mainContent.style.display = 'block';  // Show the main content
+    }, 5000); // 10 seconds delay
+});
+document.addEventListener("DOMContentLoaded", function() {
+    var loadingScreen = document.getElementById('other-screen');
+    var mainContent = document.getElementById('main-content');
+    
+    setTimeout(function() {
+        loadingScreen.style.display = 'none'; // Hide the loading screen
+        mainContent.style.display = 'block';  // Show the main content
+    }, 0); // 10 seconds delay
+});
 
+document.addEventListener("DOMContentLoaded", function() {
     //reapply themes to other webpages
     console.log(localStorage.getItem("selectedTheme"))
     if (web_location != "http://127.0.0.1:5501/mainpage.html") {
         applyTheme(localStorage.getItem("selectedTheme"));
-        themeModal.style.display = "none"; // Hide modal after selection
     }
     
 });
@@ -92,28 +86,13 @@ themeOptions.forEach(option => {
         //Get theme from local storage
         applyTheme(option.getAttribute("data-theme"));
         themeModal.style.display = "none"; // Hide modal after selection
-    var otherScreen = document.getElementById('other-screen');
-
-    /* 
-    I have implemented two separate loading delays for the index.html and other pages 
-    because they each require a loading screen. While there's likely a more efficient solution, 
-    this approach ensures that each page displays the loading screen for the appropriate duration: 
-    5 seconds for the index and 0 seconds for the others.
-    */
-
-
-    setTimeout(function() {
-        loadingScreen.style.display = 'none'; // Hide the loading screen
-        mainContent.style.display = 'block';  // Show the main content
-    }, 5000); // 10 seconds delay
-
-    setTimeout(function() {
-        otherScreen.style.display = 'none'; // Hide the loading screen
-        mainContent.style.display = 'block';  // Show the main content
-    }, 0); // 0 seconds delay
+    });
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+
+// document.addEventListener("DOMContentLoaded", function() {
+if (web_location != "http://127.0.0.1:5501/SCP096.html") {
+
     var notesToggle = document.getElementById('notes-toggle');
     var notesList = document.getElementById('notes-list');
 
@@ -124,7 +103,8 @@ document.addEventListener("DOMContentLoaded", function() {
             notesList.style.display = 'none'; // Hide the notes list
         }
     });
-});
+}
+// });
 
 function applyTheme(theme) {
     const root = document.documentElement;
@@ -172,4 +152,3 @@ function applyTheme(theme) {
     }
     localStorage.setItem("selectedTheme", theme); // Save theme in localStorage
 }
-
