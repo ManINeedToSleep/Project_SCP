@@ -29,19 +29,19 @@ document.addEventListener("DOMContentLoaded", function() {
     
 });
 
-// Tied to HTML Login
+// Tied to HTML Login and User Password Change
 const validateLogin = (event) => {
     event.preventDefault(); // Prevent form submission
 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    // Correct credentials
-    const correctUsername = 'Dr.Bright963';
-    const correctPassword = 'DrBr1ght1sC00L';
+    // Get credentials from localStorage or use default ones
+    const correctUsername = localStorage.getItem('username') || 'Dr.Bright963';
+    const correctPassword = localStorage.getItem('password') || 'DrBr1ght1sC00L';
 
     if (username === correctUsername && password === correctPassword) {
-        window.location.href = 'mainpage.html'; // Redirect to mainpage.html
+        window.location.href = 'mainpage.html'; // Redirect to main page
     } else {
         document.getElementById('error-message').style.display = 'block'; // Show error message
     }
@@ -151,4 +151,39 @@ function applyTheme(theme) {
             break;
     }
     localStorage.setItem("selectedTheme", theme); // Save theme in localStorage
+}
+
+// Load the current username for reference (optional)
+document.addEventListener("DOMContentLoaded", function() {
+    const storedUsername = localStorage.getItem('username') || 'Dr.Bright963';
+    document.getElementById('new-username').value = storedUsername;
+});
+
+// Save new username and password to localStorage
+document.addEventListener("DOMContentLoaded", function() {
+    const storedUsername = localStorage.getItem('username') || 'Dr.Bright963';
+    document.getElementById('new-username').value = storedUsername;
+});
+
+function changeCredentials(event) {
+    event.preventDefault();
+
+    const newUsername = document.getElementById('new-username').value;
+    const newPassword = document.getElementById('new-password').value;
+    const errorMessage = document.getElementById('error-message');
+    const confirmationMessage = document.getElementById('confirmation-message');
+
+    // Check for minimum 4 characters
+    if (newUsername.length < 4 || newPassword.length < 4) {
+        errorMessage.style.display = 'block';
+        confirmationMessage.style.display = 'none';
+        return false;
+    }
+
+    // Save credentials if valid
+    localStorage.setItem('username', newUsername);
+    localStorage.setItem('password', newPassword);
+
+    errorMessage.style.display = 'none';
+    confirmationMessage.style.display = 'block';
 }

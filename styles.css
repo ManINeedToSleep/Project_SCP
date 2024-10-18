@@ -176,6 +176,12 @@ button:hover {
     cursor: pointer;
 }
 
+.dropdown a {
+    cursor: pointer;
+    color: #80FF80; /* Same color as the text */
+    text-decoration: none;
+}
+
 .dropdown li:hover {
     background-color: rgba(128, 255, 128, 0.2); /* Hover effect */
 }
