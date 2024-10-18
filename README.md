@@ -1,11 +1,27 @@
-# Project_SCP
-SCP Website Fun
+# Project_SCP: An Interactive Experience
 
-Just a Fun Little Project! 🎬👾
+Welcome to **Project_SCP**! 🎬👾
 
-So, I watched a few videos about SCP (Secure, Contain, Protect) and got inspired. Decided to dive into a little project to bring some of that eerie, mysterious vibe to life. This repo is where I’m playing around with some SCP-themed ideas and experiments.
+Inspired by the eerie and mysterious world of SCP (Secure, Contain, Protect), I decided to create an engaging web experience that brings the unsettling vibe of the SCP universe to life. This repository is where I’m experimenting with various SCP-themed concepts.
 
-[The pictures and videos are not mine.]
+**Website Overview:**
+When you enter the site, you'll be greeted by a green, vintage military-style monitor screen that sets the tone. If you’re not interested in the lore, feel free to click the button to proceed. 
 
+### Features:
+1. **Level 1 Access:**
+   - Once you click through, you'll gain Level 1 access to the SCP database.
+   - You will unlock a detailed file on **SCP-096**, one of the most well-known entities in the SCP community.
 
-Once you enter the website, you would be shwon a green, old, military esque monitor screen. If you do not care for the lore, you can just go click the button like normal. Then, you should be in the next window, whic hgives you level 1 access to the database. You unlock a singular file of SCP 096, one of ht emore popular creatures from the fanbase. You could dropdown the notes, if you want to check it. It also contains other documentaries from popular SCP 096 videos in youtube if you want to go watch it!
+2. **Interactive Elements:**
+   - Explore SCP-096’s file with expandable notes that delve into its background, containment procedures, and incidents.
+   - For those who want to dive deeper, the page includes links to popular YouTube documentaries featuring SCP-096.
+
+3. **Atmospheric Design:**
+   - The interface is designed to evoke the unsettling atmosphere of SCP lore, complete with retro graphics and haunting sound effects.
+
+4. **Additional Content:**
+   - As you progress, you may unlock additional SCP files and multimedia content that enrich your understanding of the SCP universe.
+
+Feel free to explore, learn, and enjoy the eerie world of SCP! 
+
+(Note: All images and videos used are not mine. They are sourced from the SCP community and other creators. If you have any feedback or suggestions, I’d love to hear them!)
