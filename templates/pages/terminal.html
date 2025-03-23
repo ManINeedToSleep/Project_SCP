@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP Foundation - Terminal</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <link rel="icon" type="image/png" href="../../assets/images/favicon.ico">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--background-color, #131);
+        }
+        .terminal-container {
+            width: 100%;
+            height: 100vh;
+            background-color: var(--background-color, #131);
+            color: var(--main-color, #80FF80);
+            background-image: var(--background-gradient);
+            background-position: center;
+            box-shadow: inset 0 0 10em 1em rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .terminal-header {
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-family: monospace;
+            user-select: none;
+            border-bottom: 1px solid var(--main-color, #80FF80);
+            box-shadow: 0 0 15px rgba(128, 255, 128, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+        .terminal-header .title {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            animation: textPulse 3s infinite ease-in-out;
+        }
+        .terminal-header .title::before {
+            content: "■";
+            margin-right: 10px;
+            animation: blink 1.5s infinite;
+        }
+        .terminal-header .controls {
+            display: flex;
+            gap: 15px;
+        }
+        .terminal-header .controls a {
+            color: var(--main-color, #80FF80);
+            text-decoration: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 2px;
+        }
+        .terminal-header .controls a:hover {
+            border: 1px solid var(--main-color, #80FF80);
+            background-color: rgba(128, 255, 128, 0.1);
+            box-shadow: 0 0 8px rgba(128, 255, 128, 0.4);
+        }
+        .terminal-header .controls a:hover::before {
+            content: "> ";
+        }
+        .terminal-view {
+            height: calc(100vh - 40px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+        .terminal-main {
+            flex: 1;
+            height: 100%;
+            position: relative;
+        }
+        .terminal-sidebar {
+            width: 250px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-left: 1px solid var(--main-color, #80FF80);
+            padding: 10px;
+            overflow-y: auto;
+            transform: translateX(250px);
+            transition: transform 0.3s ease;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 10;
+        }
+        .terminal-sidebar.visible {
+            transform: translateX(0);
+        }
+        .scanline {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 5;
+            opacity: 0.3;
+        }
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+        .loading-terminal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: var(--main-color, #80FF80);
+            background-color: var(--background-color, #131);
+            background-image: var(--background-gradient);
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 1s ease-in;
+        }
+        .loading-terminal h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(128, 255, 128, 0.6);
+            letter-spacing: 3px;
+        }
+        .terminal-prompt {
+            margin: 30px 0;
+            font-size: 1.5em;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .dot {
+            width: 15px;
+            height: 15px;
+            background-color: var(--main-color, #80FF80);
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: pulse 1.5s infinite;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+        .foundation-logo {
+            width: 150px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+            border: 2px solid var(--main-color, #80FF80);
+            box-shadow: 0 0 20px rgba(128, 255, 128, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .foundation-logo span {
+            border: 2px solid var(--main-color, #80FF80);
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .footer-info {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        .status-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 3px 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--main-color, #80FF80);
+            animation: pulseBadge 2s infinite;
+            border-radius: 2px;
+        }
+        @keyframes pulseBadge {
+            0% { box-shadow: 0 0 5px rgba(128, 255, 128, 0.3); }
+            50% { box-shadow: 0 0 10px rgba(128, 255, 128, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(128, 255, 128, 0.3); }
+        }
+        .stats-panel {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--main-color, #80FF80);
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        .stats-panel .title {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(128, 255, 128, 0.3);
+            font-weight: bold;
+        }
+        .stats-panel .stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .stat-value {
+            font-weight: bold;
+        }
+        .clearance-section {
+            margin-top: 15px;
+        }
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        .sidebar-title {
+            font-weight: bold;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(128, 255, 128, 0.3);
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .file-list li {
+            padding: 5px 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-list li:hover {
+            background-color: rgba(128, 255, 128, 0.1);
+        }
+        .file-list li::before {
+            content: "📄 ";
+            opacity: 0.7;
+        }
+        .command-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .command-list li {
+            padding: 5px 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 2px;
+        }
+        .command-list li:hover {
+            background-color: rgba(128, 255, 128, 0.1);
+        }
+        .command-list li::before {
+            content: "> ";
+            opacity: 0.7;
+        }
+        .context-menu {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--main-color, #80FF80);
+            padding: 5px 0;
+            border-radius: 4px;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            min-width: 150px;
+            display: none;
+        }
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: rgba(128, 255, 128, 0.1);
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: var(--main-color, #80FF80);
+            padding: 10px 15px;
+            border-radius: 4px;
+            border-left: 3px solid var(--main-color, #80FF80);
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s, opacity 0.3s;
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .notification.error {
+            border-left-color: #ff6347;
+        }
+        .notification.warning {
+            border-left-color: #ffa500;
+        }
+        .notification.success {
+            border-left-color: #32cd32;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen" class="loading-terminal">
+        <div class="foundation-logo">
+            <span>SCP</span>
+        </div>
+        <h1>SECURE TERMINAL</h1>
+        <div class="terminal-prompt">
+            INITIALIZING SYSTEM<span class="cursor-blink">_</span>
+        </div>
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="footer-info">
+            FOUNDATION SECURE NETWORK - AUTHORIZED ACCESS ONLY
+        </div>
+        <div class="scanline"></div>
+    </div>
+
+    <div id="main-content" class="terminal-container" style="display:none;">
+        <div class="scanline"></div>
+        <div class="terminal-header">
+            <div class="title">SCiPNET Terminal - <span id="user-id">Authenticating...</span> <span class="status-indicator">ACTIVE</span></div>
+            <div class="controls">
+                <a href="dashboard.html">Dashboard</a>
+                <a id="toggle-sidebar">Files</a>
+                <a id="theme-toggle">Theme</a>
+                <a href="login.html">Log Out</a>
+            </div>
+        </div>
+        <div class="terminal-view">
+            <div class="terminal-main">
+                <terminal-console id="terminal" prompt="scp> " auto-focus="true"></terminal-console>
+            </div>
+            <div id="terminal-sidebar" class="terminal-sidebar">
+                <div class="stats-panel">
+                    <div class="title">SYSTEM STATUS</div>
+                    <div class="stat">
+                        <span>Connection</span>
+                        <span class="stat-value" style="color: #32cd32;">SECURE</span>
+                    </div>
+                    <div class="stat">
+                        <span>Uptime</span>
+                        <span class="stat-value" id="uptime">00:00:00</span>
+                    </div>
+                    <div class="stat">
+                        <span>Access Level</span>
+                        <span class="stat-value" id="access-level">Level 4</span>
+                    </div>
+                    <div class="stat">
+                        <span>Commands Run</span>
+                        <span class="stat-value" id="commands-run">0</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">QUICK ACCESS FILES</div>
+                    <ul class="file-list" id="quick-files">
+                        <li data-file="about.txt">about.txt</li>
+                        <li data-file="clearance.txt">clearance.txt</li>
+                        <li data-file="protocols.txt">protocols.txt</li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">SCP DATABASE</div>
+                    <ul class="file-list" id="scp-files">
+                        <!-- Will be populated dynamically -->
+                        <li>Loading files...</li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">COMMON COMMANDS</div>
+                    <ul class="command-list" id="command-list">
+                        <li data-command="help">help</li>
+                        <li data-command="ls">ls</li>
+                        <li data-command="search">search</li>
+                        <li data-command="status">status</li>
+                        <li data-command="clear">clear</li>
+                    </ul>
+                </div>
+                
+                <div class="clearance-section">
+                    <div class="sidebar-title">CLEARANCE CONTROL</div>
+                    <select id="clearance-selector" style="width: 100%; padding: 5px; background: rgba(0,0,0,0.7); color: var(--main-color); border: 1px solid var(--main-color);">
+                        <option value="Level 1">Level 1 - Confidential</option>
+                        <option value="Level 2">Level 2 - Restricted</option>
+                        <option value="Level 3">Level 3 - Secret</option>
+                        <option value="Level 4" selected>Level 4 - Top Secret</option>
+                        <option value="Level 5">Level 5 - O5 Command</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" data-action="copy">Copy</div>
+        <div class="context-menu-item" data-action="paste">Paste</div>
+        <div class="context-menu-item" data-action="select-all">Select All</div>
+        <div class="context-menu-item" data-action="clear">Clear Terminal</div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notification-message"></span>
+    </div>
+
+    <!-- Theme Modal -->
+    <div id="theme-modal" class="theme-modal" style="display: none;">
+        <div class="theme-content">
+            <h3>Select a Theme</h3>
+            <div class="theme-option" data-theme="default">Default Theme</div>
+            <div class="theme-option" data-theme="night">Night Time Theme</div>
+            <div class="theme-option" data-theme="ice">Ice Theme</div>
+            <div class="theme-option" data-theme="demon">Demon Theme</div>
+            <div class="theme-option" data-theme="galaxy">Galaxy Theme</div>
+        </div>
+    </div>
+
+    <!-- Load necessary scripts -->
+    <script src="../../components/terminal-console.js"></script>
+    <script src="../../data/scp-data.js"></script>
+    <script src="../../data/personnel-data.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Initialize references
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+            const userId = document.getElementById('user-id');
+            const terminal = document.getElementById('terminal');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeModal = document.getElementById('theme-modal');
+            const toggleSidebar = document.getElementById('toggle-sidebar');
+            const terminalSidebar = document.getElementById('terminal-sidebar');
+            const uptimeEl = document.getElementById('uptime');
+            const accessLevelEl = document.getElementById('access-level');
+            const commandsRunEl = document.getElementById('commands-run');
+            const clearanceSelector = document.getElementById('clearance-selector');
+            const contextMenu = document.getElementById('context-menu');
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+            const quickFiles = document.getElementById('quick-files');
+            const scpFilesList = document.getElementById('scp-files');
+            const commandList = document.getElementById('command-list');
+            
+            // Initialize variables
+            let commandsRun = 0;
+            let startTime = new Date();
+            let userData = {
+                username: 'Researcher',
+                clearanceLevel: 'Level 4',
+                id: generateRandomId(),
+                department: 'Research',
+                lastLogin: new Date(Date.now() - 86400000 * Math.floor(Math.random() * 14)).toISOString().split('T')[0]
+            };
+            let systemFiles = {};
+            let accessDeniedCount = 0;
+            let terminalHistory = [];
+            
+            // Generate random ID for user
+            function generateRandomId() {
+                const prefix = "P-";
+                const randomNum = Math.floor(10000 + Math.random() * 90000);
+                return prefix + randomNum;
+            }
+            
+            // Show loading messages
+            let loadingMsgs = [
+                "Establishing connection to SCP network...",
+                "Verifying user credentials...",
+                "Decrypting secure files...",
+                "Initializing terminal services...",
+                "Loading database protocols...",
+                "Calibrating reality anchors...",
+                "Verifying security clearance...",
+                "Connection established!"
+            ];
+            
+            let msgIndex = 0;
+            const terminalPrompt = document.querySelector('.terminal-prompt');
+            
+            // Animate loading messages
+            const loadingInterval = setInterval(() => {
+                if (msgIndex < loadingMsgs.length) {
+                    terminalPrompt.innerHTML = loadingMsgs[msgIndex] + '<span class="cursor-blink">_</span>';
+                    msgIndex++;
+                } else {
+                    clearInterval(loadingInterval);
+                    
+                    // Finish loading sequence
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        loadingScreen.style.transition = 'opacity 0.5s ease';
+                        
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            mainContent.style.display = 'block';
+                            terminal.focus();
+                            
+                            // Add welcome message
+                            showWelcomeMessage();
+                        }, 500);
+                    }, 500);
+                }
+            }, 800);
+            
+            // Update uptime clock
+            setInterval(() => {
+                const now = new Date();
+                const diff = now - startTime;
+                const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                uptimeEl.textContent = `${hours}:${minutes}:${seconds}`;
+            }, 1000);
+            
+            // Toggle sidebar
+            toggleSidebar.addEventListener('click', function() {
+                terminalSidebar.classList.toggle('visible');
+            });
+            
+            // Set initial user info
+            function initializeUserInfo() {
+                // Try to get from session storage
+                const authData = JSON.parse(sessionStorage.getItem('scp_auth') || '{}');
+                if (authData && authData.name) {
+                    userData.username = authData.name;
+                }
+                if (authData && authData.clearanceLevel) {
+                    userData.clearanceLevel = authData.clearanceLevel;
+                }
+                
+                // Set display elements
+                userId.textContent = `${userData.username} (${userData.id})`;
+                accessLevelEl.textContent = userData.clearanceLevel;
+                clearanceSelector.value = userData.clearanceLevel;
+                
+                // Set database clearance level
+                if (typeof scpDatabase !== 'undefined' && typeof scpDatabase.setUserClearance === 'function') {
+                    scpDatabase.setUserClearance(userData.clearanceLevel);
+                }
+            }
+            
+            // Show welcome message
+            function showWelcomeMessage() {
+                initializeUserInfo();
+                
+                terminal._addOutput(`===== SCIPNET TERMINAL SYSTEM v3.8.2 =====`, 'info');
+                terminal._addOutput(`Welcome, ${userData.username} (${userData.clearanceLevel})`, 'info');
+                terminal._addOutput(`Last login: ${userData.lastLogin} from [REDACTED]`, 'system');
+                terminal._addOutput(`Your current clearance level grants you access to:`);
+                terminal._addOutput(` - Safe class SCPs`);
+                terminal._addOutput(` - Euclid class SCPs`);
+                
+                // Show different access based on clearance
+                const level = parseInt(userData.clearanceLevel.replace('Level ', ''));
+                if (level >= 3) terminal._addOutput(` - Keter class SCPs`);
+                if (level >= 4) terminal._addOutput(` - Thaumiel class SCPs`);
+                if (level >= 5) terminal._addOutput(` - Apollyon class SCPs`);
+                
+                terminal._addOutput(`For assistance, type 'help' or click the 'Files' button to browse available resources.`);
+                terminal._addOutput(`All commands are logged and monitored. Unauthorized access attempts will be reported.`, 'warning');
+                terminal._addOutput(`================================================`, 'info');
+                terminal._addOutput('');
+            }
+            
+            // Override terminal's execute command method to count commands and add logging
+            const origExecuteCommand = terminal.executeCommand;
+            terminal.executeCommand = function(command) {
+                if (!command.trim()) return;
+                
+                // Increment command counter
+                commandsRun++;
+                commandsRunEl.textContent = commandsRun;
+                
+                // Log command in history
+                terminalHistory.push({
+                    command: command,
+                    timestamp: new Date().toISOString(),
+                    clearance: userData.clearanceLevel
+                });
+                
+                // Add system message occasionally
+                if (Math.random() > 0.7) {
+                    terminal._addOutput(`[SYSTEM: Command executed - ${new Date().toISOString()}]`, 'system');
+                }
+                
+                // Execute the original command
+                return origExecuteCommand.call(this, command);
+            };
+            
+            // Handle file clicks from sidebar
+            quickFiles.addEventListener('click', function(e) {
+                if (e.target.tagName === 'LI') {
+                    const fileName = e.target.getAttribute('data-file');
+                    terminal.value = `cat ${fileName}`;
+                    terminal.executeCommand(terminal.value);
+                }
+            });
+            
+            // Handle command clicks
+            commandList.addEventListener('click', function(e) {
+                if (e.target.tagName === 'LI') {
+                    const command = e.target.getAttribute('data-command');
+                    terminal.value = command;
+                    terminal.executeCommand(terminal.value);
+                }
+            });
+            
+            // Handle SCP file clicks
+            scpFilesList.addEventListener('click', function(e) {
+                if (e.target.tagName === 'LI') {
+                    const scpId = e.target.getAttribute('data-scp');
+                    if (scpId) {
+                        terminal.value = `view ${scpId}`;
+                        terminal.executeCommand(terminal.value);
+                    }
+                }
+            });
+            
+            // Handle clearance level changes
+            clearanceSelector.addEventListener('change', function() {
+                const newClearance = this.value;
+                userData.clearanceLevel = newClearance;
+                accessLevelEl.textContent = newClearance;
+                
+                // Set database clearance level
+                if (typeof scpDatabase !== 'undefined' && typeof scpDatabase.setUserClearance === 'function') {
+                    scpDatabase.setUserClearance(newClearance);
+                }
+                
+                showNotification(`Clearance level updated to ${newClearance}`, 'success');
+                updateScpFilesList(); // Refresh SCP files based on new clearance
+            });
+        
+            // Show notification
+            function showNotification(message, type = 'info') {
+                notificationMessage.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Theme handling
+            themeToggle.addEventListener('click', function() {
+                themeModal.style.display = themeModal.style.display === 'none' ? 'flex' : 'none';
+            });
+            
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    applyTheme(theme);
+                    themeModal.style.display = 'none';
+                    showNotification(`Theme changed to ${theme}`, 'info');
+                });
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === themeModal) {
+                    themeModal.style.display = 'none';
+                }
+            });
+            
+            // Handle context menu
+            terminal.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = e.pageX + 'px';
+                contextMenu.style.top = e.pageY + 'px';
+                
+                // Handle click elsewhere to close
+                const closeContextMenu = function(e) {
+                    if (!contextMenu.contains(e.target)) {
+                        contextMenu.style.display = 'none';
+                        document.removeEventListener('click', closeContextMenu);
+                    }
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', closeContextMenu);
+                }, 0);
+            });
+            
+            // Handle context menu actions
+            contextMenu.addEventListener('click', function(e) {
+                const action = e.target.getAttribute('data-action');
+                if (!action) return;
+                
+                switch (action) {
+                    case 'copy':
+                        document.execCommand('copy');
+                        break;
+                    case 'paste':
+                        navigator.clipboard.readText().then(text => {
+                            terminal.value += text;
+                        });
+                        break;
+                    case 'select-all':
+                        terminal.select();
+                        break;
+                    case 'clear':
+                        terminal.clear();
+                        break;
+                }
+                
+                contextMenu.style.display = 'none';
+            });
+            
+            // Load theme if stored
+            const storedTheme = localStorage.getItem('selectedTheme');
+            if (storedTheme) {
+                applyTheme(storedTheme);
+            }
+            
+            // Update SCP files list based on clearance
+            function updateScpFilesList() {
+                // Clear current list
+                scpFilesList.innerHTML = '';
+                
+                if (typeof scpDatabase === 'undefined' || !scpDatabase.scps) {
+                    scpFilesList.innerHTML = '<li>Error loading SCP database</li>';
+                    return;
+                }
+                
+                // Get accessible SCPs
+                let accessibleSCPs = [];
+                if (typeof scpDatabase.getAccessibleSCPs === 'function') {
+                    accessibleSCPs = scpDatabase.getAccessibleSCPs();
+                } else {
+                    // Fallback to object keys
+                    accessibleSCPs = Object.values(scpDatabase.scps);
+                }
+                
+                // Sort by item number
+                accessibleSCPs.sort((a, b) => {
+                    const aNum = parseInt(a.item.replace(/\D/g, '')) || 0;
+                    const bNum = parseInt(b.item.replace(/\D/g, '')) || 0;
+                    return aNum - bNum;
+                });
+                
+                // Show only first 10 for performance, with a "more" option
+                const displaySCPs = accessibleSCPs.slice(0, 10);
+                
+                // Create list items
+                displaySCPs.forEach(scp => {
+                    const li = document.createElement('li');
+                    li.textContent = `${scp.item} - ${scp.object_class}`;
+                    li.setAttribute('data-scp', scp.item.toLowerCase());
+                    li.title = scp.item;
+                    
+                    // Add color based on object class
+                    const objectClass = scp.object_class.toLowerCase();
+                    if (objectClass === 'safe') {
+                        li.style.color = '#3cb371'; // green
+                    } else if (objectClass === 'euclid') {
+                        li.style.color = '#ffa500'; // orange
+                    } else if (objectClass === 'keter') {
+                        li.style.color = '#ff6347'; // red
+                    } else if (objectClass === 'thaumiel') {
+                        li.style.color = '#4169e1'; // blue
+                    }
+                    
+                    scpFilesList.appendChild(li);
+                });
+                
+                // Add "more" option if needed
+                if (accessibleSCPs.length > 10) {
+                    const moreItem = document.createElement('li');
+                    moreItem.textContent = `... ${accessibleSCPs.length - 10} more files`;
+                    moreItem.style.opacity = '0.7';
+                    moreItem.style.fontStyle = 'italic';
+                    scpFilesList.appendChild(moreItem);
+                }
+            }
+            
+            // Set up terminal command system
+            function setupTerminalCommands() {
+                // Define system files
+                systemFiles = {
+                    'about.txt': 
+                        `===================================\n` +
+                        `   SCP FOUNDATION TERMINAL SYSTEM  \n` +
+                        `   Version 3.8.2 (Build 20231103)  \n` +
+                        `===================================\n\n` +
+                        `Copyright (c) SCP Foundation\n\n` +
+                        `This terminal provides secure access to the SCP Foundation database.\n` +
+                        `All activities are logged and monitored for security purposes.\n\n` +
+                        `Current user: ${userData.username} (${userData.id})\n` +
+                        `Department: ${userData.department}\n` +
+                        `Clearance: ${userData.clearanceLevel}\n\n` +
+                        `For assistance, type 'help' or 'man [command]'.`,
+                        
+                    'clearance.txt':
+                        `=================================\n` +
+                        ` SCP FOUNDATION CLEARANCE LEVELS \n` +
+                        `=================================\n\n` +
+                        `Level 1: Confidential - Access to Safe class SCPs only\n` +
+                        `Level 2: Restricted - Access to Safe and Euclid class SCPs\n` +
+                        `Level 3: Secret - Access to Safe, Euclid, and Keter class SCPs\n` +
+                        `Level 4: Top Secret - Access to most SCPs including Thaumiel class\n` +
+                        `Level 5: O5 Command - Unrestricted access to all Foundation data\n\n` +
+                        `Your current clearance level: ${userData.clearanceLevel}\n\n` +
+                        `NOTE: Attempting to access files beyond your clearance level\n` +
+                        `will be logged and may result in disciplinary action.`,
+                        
+                    'protocols.txt':
+                        `===============================\n` +
+                        ` SCP FOUNDATION PROTOCOLS      \n` +
+                        `===============================\n\n` +
+                        `1. ALPHA Protocol - Standard containment procedures\n` +
+                        `2. BETA Protocol - Enhanced security measures\n` +
+                        `3. GAMMA Protocol - Hostile organism containment\n` +
+                        `4. DELTA Protocol - Cognitohazard containment\n` +
+                        `5. EPSILON Protocol - Reality-altering anomaly procedures\n` +
+                        `6. OMEGA Protocol - XK-class end-of-world scenario procedures\n\n` +
+                        `For detailed information on specific protocols, use command:\n` +
+                        `protocol <protocol-name>\n\n` +
+                        `Example: protocol gamma`,
+                    
+                    'help.txt':
+                        `===========================\n` +
+                        ` AVAILABLE COMMANDS        \n` +
+                        `===========================\n\n` +
+                        `help              - Display this help message\n` +
+                        `ls                - List available files\n` +
+                        `cat [filename]    - Display file contents\n` +
+                        `view [scp-xxx]    - View SCP file with proper formatting\n` +
+                        `scp [scp-xxx]     - Alias for view command\n` +
+                        `search [term]     - Search the database for matching entries\n` +
+                        `list-scps         - List all accessible SCPs\n` +
+                        `personnel [id]    - View personnel information\n` +
+                        `list-personnel    - List all accessible personnel records\n` +
+                        `mtf [designation] - View Mobile Task Force information\n` +
+                        `list-mtf          - List all accessible MTF records\n` +
+                        `status            - Display system status information\n` +
+                        `protocol [name]   - View protocol information\n` +
+                        `breach [scp-xxx]  - Simulate containment breach (training only)\n` +
+                        `whoami            - Display current user information\n` +
+                        `date              - Display current date and time\n` +
+                        `clear             - Clear the terminal screen\n` +
+                        `dashboard         - Go to visual dashboard interface\n` +
+                        `logout/exit       - Exit the terminal\n\n` +
+                        `Type "help" for a list of available commands.`,
+                
+                    'history.txt': 
+                        `Command history will be generated dynamically`
+                };
+                
+                // Add basic commands
+                terminal.addCommand('help', function() {
+                    this._addOutput(systemFiles['help.txt']);
+                });
+                
+                terminal.addCommand('ls', function() {
+                    this._addOutput('Available files:', 'info');
+                    
+                    // Standard system files first
+                    Object.keys(systemFiles).forEach(file => {
+                        this._addOutput(` - ${file}`);
+                    });
+                    
+                    // SCP files based on clearance
+                    if (typeof scpDatabase !== 'undefined' && typeof scpDatabase.getAccessibleSCPs === 'function') {
+                        const accessibleSCPs = scpDatabase.getAccessibleSCPs();
+                        
+                        if (accessibleSCPs.length > 0) {
+                            this._addOutput('\nSCP Files:', 'info');
+                            accessibleSCPs.slice(0, 15).forEach(scp => {
+                                this._addOutput(` - ${scp.item.toLowerCase().replace(/[- ]/g, '')}.txt`);
+                            });
+                            
+                            if (accessibleSCPs.length > 15) {
+                                this._addOutput(` - ... and ${accessibleSCPs.length - 15} more files`);
+                            }
+                        }
+                    }
+                });
+                
+                terminal.addCommand('cat', function(args) {
+                    if (args.length === 0) {
+                        this._addOutput('Usage: cat [filename]', 'error');
+                        return;
+                    }
+                    
+                    const fileName = args[0];
+                    
+                    // Check if it's a system file
+                    if (systemFiles[fileName]) {
+                        // Special case for history.txt
+                        if (fileName === 'history.txt') {
+                            this._addOutput('=== COMMAND HISTORY ===', 'info');
+                            terminalHistory.forEach((entry, i) => {
+                                this._addOutput(`${i+1}. [${entry.timestamp}] ${entry.command}`);
+                            });
+                            if (terminalHistory.length === 0) {
+                                this._addOutput('No commands executed yet.');
+                            }
+                        } else {
+                            this._addOutput(systemFiles[fileName]);
+                        }
+                        return;
+                    }
+                    
+                    // Try to find it in SCP files
+                    const scpMatch = fileName.match(/^scp-?(\d+)\.txt$/i);
+                    if (scpMatch) {
+                        const scpId = 'scp' + scpMatch[1];
+                        // Redirect to view command
+                        this.executeCommand(`view ${scpId}`);
+                        return;
+                    }
+                    
+                    this._addOutput(`File not found: ${fileName}`, 'error');
+                });
+                
+                // Store start time for uptime calculation
+                window.startTime = new Date();
+                
+                // Set up core commands - implement the personnel commands directly
+                // Command to list all personnel
+                terminal.addCommand('list-personnel', function() {
+                    this._addOutput('Retrieving accessible personnel records...', 'info');
+                    
+                    let accessiblePersonnel = [];
+                    
+                    // Get user clearance
+                    const userClearance = typeof scpDatabase !== 'undefined' ? 
+                        parseInt(scpDatabase.getUserClearance().replace('Level ', '')) : 1;
+                    
+                    // Check PersonnelDataStore
+                    if (typeof PersonnelDataStore !== 'undefined') {
+                        for (const key in PersonnelDataStore) {
+                            const person = PersonnelDataStore[key];
+                            const requiredClearance = parseInt((person.clearanceRequired || 'Level 1').replace('Level ', ''));
+                            
+                            if (requiredClearance <= userClearance) {
+                                accessiblePersonnel.push(person);
+                            }
+                        }
+                    }
+                    
+                    if (accessiblePersonnel.length === 0) {
+                        this._addOutput('No personnel records accessible for your clearance level.', 'warning');
+                        return;
+                    }
+                    
+                    // Display results
+                    this._addOutput(`Found ${accessiblePersonnel.length} accessible personnel records:`, 'success');
+                    
+                    // Display in a simpler format since we don't have _addTable method
+                    accessiblePersonnel.forEach(person => {
+                        this._addOutput(`${person.id}: ${person.name} - ${person.position} (${person.department})`);
+                    });
+                    
+                    this._addOutput('\nUse "personnel [id]" to display detailed information.');
+                });
+                
+                // Command to view personnel files
+                terminal.addCommand('personnel', function(args) {
+                    if (args.length === 0) {
+                        this._addOutput('Usage: personnel [personnel-id]', 'error');
+                        this._addOutput('Example: personnel P-10294');
+                        return;
+                    }
+                    
+                    // Parse personnel ID
+                    let personnelId = args[0].toUpperCase();
+                    
+                    // Add prefix if not present
+                    if (!personnelId.startsWith('P-') && /^\d+$/.test(personnelId)) {
+                        personnelId = 'P-' + personnelId;
+                    }
+                    
+                    // Try to retrieve personnel data
+                    let personnelData = null;
+                    
+                    // Check PersonnelDataStore first (from personnel-data.js)
+                    if (typeof PersonnelDataStore !== 'undefined') {
+                        personnelData = PersonnelDataStore[personnelId];
+                    }
+                    
+                    // If we couldn't find the personnel data
+                    if (!personnelData) {
+                        this._addOutput(`No data found for Personnel ID: ${personnelId}`, 'error');
+                        this._addOutput('The file may not exist or you may not have sufficient clearance.', 'warning');
+                        return;
+                    }
+                    
+                    // Check user clearance
+                    const userClearance = typeof scpDatabase !== 'undefined' ? 
+                        scpDatabase.getUserClearance() : 'Level 1';
+                        
+                    const requiredClearance = personnelData.clearanceRequired || 'Level 1';
+                    const userClearanceLevel = parseInt(userClearance.replace('Level ', ''));
+                    const requiredClearanceLevel = parseInt(requiredClearance.replace('Level ', ''));
+                    
+                    if (userClearanceLevel < requiredClearanceLevel) {
+                        this._addOutput(`[ACCESS DENIED] - Personnel File: ${personnelId}`, 'error');
+                        this._addOutput(`Your clearance level (${userClearance}) is insufficient.`, 'error');
+                        this._addOutput(`Required clearance: ${requiredClearance}`, 'warning');
+                        this._addOutput('This access attempt has been logged.', 'warning');
+                        return;
+                    }
+                    
+                    // Format and display the personnel data
+                    this._addOutput('');
+                    this._addOutput(`=== PERSONNEL FILE: ${personnelId} ===`, 'info');
+                    this._addOutput('');
+                    
+                    // Basic information
+                    this._addOutput(`Name: ${personnelData.name}`);
+                    this._addOutput(`Position: ${personnelData.position}`);
+                    this._addOutput(`Department: ${personnelData.department}`);
+                    this._addOutput(`Clearance Level: ${personnelData.clearanceLevel}`);
+                    this._addOutput(`Status: ${personnelData.status}`, personnelData.status === 'Active' ? 'success' : 'error');
+                    this._addOutput(`Specialization: ${personnelData.specialization}`);
+                    this._addOutput('');
+                    
+                    // Display description if available
+                    if (personnelData.description) {
+                        this._addOutput('Description:', 'info');
+                        this._addOutput(personnelData.description.trim());
+                        this._addOutput('');
+                    }
+                    
+                    // Display notable incidents if available
+                    if (personnelData.notableIncidents && personnelData.notableIncidents.length > 0) {
+                        this._addOutput('Notable Incidents:', 'info');
+                        personnelData.notableIncidents.forEach(incident => {
+                            this._addOutput(`[${incident.date}] ${incident.incident}`, 'warning');
+                            this._addOutput(incident.description);
+                            this._addOutput('');
+                        });
+                    }
+                    
+                    this._addOutput(`=== END OF FILE ===`, 'info');
+                });
+                
+                // Mobile Task Force commands
+                // Command to list all MTFs
+                terminal.addCommand('list-mtf', function() {
+                    this._addOutput('Retrieving accessible Mobile Task Force records...', 'info');
+                    
+                    // Get user clearance
+                    const userClearance = typeof scpDatabase !== 'undefined' ? 
+                        parseInt(scpDatabase.getUserClearance().replace('Level ', '')) : 1;
+                    
+                    // Define some standard MTFs with clearance levels
+                    const mtfList = [
+                        {
+                            id: "alpha-1",
+                            designation: "Alpha-1",
+                            name: "Red Right Hand",
+                            specialization: "Direct action on behalf of the O5 Council",
+                            status: "Active", 
+                            clearanceRequired: "Level 4"
+                        },
+                        {
+                            id: "epsilon-11",
+                            designation: "Epsilon-11",
+                            name: "Nine-Tailed Fox",
+                            specialization: "Security and containment of Foundation facilities during breach events",
+                            status: "Active",
+                            clearanceRequired: "Level 3"
+                        },
+                        {
+                            id: "nu-7",
+                            designation: "Nu-7",
+                            name: "Hammer Down",
+                            specialization: "Heavy combat operations against Groups of Interest and SCPs",
+                            status: "Active",
+                            clearanceRequired: "Level 3"
+                        },
+                        {
+                            id: "beta-7",
+                            designation: "Beta-7",
+                            name: "Maz Hatters",
+                            specialization: "Hazardous materials and anomalies",
+                            status: "Active",
+                            clearanceRequired: "Level 2"
+                        },
+                        {
+                            id: "delta-5",
+                            designation: "Delta-5",
+                            name: "Front Runners",
+                            specialization: "Reconnaissance and advance scouting",
+                            status: "Active",
+                            clearanceRequired: "Level 2"
+                        }
+                    ];
+                    
+                    // Filter by clearance level
+                    const accessibleMTFs = mtfList.filter(mtf => {
+                        const requiredClearance = parseInt((mtf.clearanceRequired || 'Level 1').replace('Level ', ''));
+                        return requiredClearance <= userClearance;
+                    });
+                    
+                    if (accessibleMTFs.length === 0) {
+                        this._addOutput('No MTF records accessible for your clearance level.', 'warning');
+                        return;
+                    }
+                    
+                    // Display results
+                    this._addOutput(`Found ${accessibleMTFs.length} accessible MTF records:`, 'success');
+                    
+                    // Display MTFs
+                    accessibleMTFs.forEach(mtf => {
+                        this._addOutput(`${mtf.designation}: "${mtf.name}" - ${mtf.specialization}`);
+                    });
+                    
+                    this._addOutput('\nUse "mtf [designation]" to display detailed information.');
+                });
+                
+                // Command to view MTF files
+                terminal.addCommand('mtf', function(args) {
+                    if (args.length === 0) {
+                        this._addOutput('Usage: mtf [designation]', 'error');
+                        this._addOutput('Example: mtf epsilon-11');
+                        return;
+                    }
+                    
+                    // Parse MTF ID
+                    let mtfId = args[0].toLowerCase();
+                    
+                    // Define some standard MTFs
+                    const mtfList = {
+                        "alpha-1": {
+                            id: "alpha-1",
+                            designation: "Alpha-1",
+                            name: "Red Right Hand",
+                            specialization: "Direct action on behalf of the O5 Council",
+                            status: "Active", 
+                            clearanceRequired: "Level 4",
+                            description: "Mobile Task Force Alpha-1 is a task force that reports directly to the O5 Council and is used in situations that require the strictest operational security. Further information is classified.",
+                            formation: "2004-09-18",
+                            operationalHistory: "Information about this task force's operations is highly classified and only accessible to personnel with Level 5 clearance.",
+                            commandStructure: "Command structure is classified. Task force operates outside standard Foundation hierarchy when deployed."
+                        },
+                        "epsilon-11": {
+                            id: "epsilon-11",
+                            designation: "Epsilon-11",
+                            name: "Nine-Tailed Fox",
+                            specialization: "Security and containment of Foundation facilities during breach events",
+                            status: "Active",
+                            clearanceRequired: "Level 3",
+                            description: "Mobile Task Force Epsilon-11 handles internal security for Foundation sites, specializing in the re-containment of breached anomalies and protection of Foundation personnel and assets during such events.",
+                            formation: "1997-03-25",
+                            operationalHistory: "MTF E-11 has been involved in numerous successful re-containment operations, including the notable Site-19 breach of 2014.",
+                            commandStructure: "Typically divided into three fire teams designated E-11-1, E-11-2, and E-11-3, each with a specialized focus (assessment, containment, and termination)."
+                        },
+                        "nu-7": {
+                            id: "nu-7",
+                            designation: "Nu-7",
+                            name: "Hammer Down",
+                            specialization: "Heavy combat operations against Groups of Interest and SCPs",
+                            status: "Active",
+                            clearanceRequired: "Level 3",
+                            description: "Mobile Task Force Nu-7 is the Foundation's primary military response team, structured as a battalion-strength force capable of dealing with direct hostile action against Foundation facilities and operations.",
+                            formation: "1992-11-03",
+                            operationalHistory: "MTF Nu-7 has been deployed in numerous high-risk containment operations requiring significant firepower, including engagement with Chaos Insurgency forces.",
+                            commandStructure: "Organized as a military battalion with multiple companies, includes armor, air, artillery, and infantry elements."
+                        },
+                        "beta-7": {
+                            id: "beta-7",
+                            designation: "Beta-7",
+                            name: "Maz Hatters",
+                            specialization: "Hazardous materials and anomalies",
+                            status: "Active",
+                            clearanceRequired: "Level 2",
+                            description: "Mobile Task Force Beta-7 specializes in the containment and transportation of anomalies exhibiting hazardous chemical, biological, or radiological properties.",
+                            formation: "1998-06-17",
+                            operationalHistory: "MTF Beta-7 has conducted numerous containment operations involving hazardous anomalous materials across 29 countries.",
+                            commandStructure: "Organized into specialized teams with expertise in various hazardous materials categories."
+                        },
+                        "delta-5": {
+                            id: "delta-5",
+                            designation: "Delta-5",
+                            name: "Front Runners",
+                            specialization: "Reconnaissance and advance scouting",
+                            status: "Active",
+                            clearanceRequired: "Level 2",
+                            description: "Mobile Task Force Delta-5 is responsible for scouting potential anomalies before the deployment of primary containment or recovery teams. They specialize in reconnaissance and intelligence gathering in anomalous environments.",
+                            formation: "2005-08-12",
+                            operationalHistory: "MTF Delta-5 has identified and assessed over 200 potential anomalies, providing critical intelligence for successful containment operations.",
+                            commandStructure: "Small teams of 3-5 operatives organized by region, with specialized equipment for reconnaissance and surveillance."
+                        }
+                    };
+                    
+                    // Try to find the MTF
+                    const mtfData = mtfList[mtfId];
+                    
+                    // If we couldn't find the MTF data
+                    if (!mtfData) {
+                        this._addOutput(`No data found for MTF: ${mtfId}`, 'error');
+                        this._addOutput('The file may not exist or you may not have sufficient clearance.', 'warning');
+                        return;
+                    }
+                    
+                    // Check user clearance
+                    const userClearance = typeof scpDatabase !== 'undefined' ? 
+                        scpDatabase.getUserClearance() : 'Level 1';
+                        
+                    const requiredClearance = mtfData.clearanceRequired || 'Level 1';
+                    const userClearanceLevel = parseInt(userClearance.replace('Level ', ''));
+                    const requiredClearanceLevel = parseInt(requiredClearance.replace('Level ', ''));
+                    
+                    if (userClearanceLevel < requiredClearanceLevel) {
+                        this._addOutput(`[ACCESS DENIED] - MTF File: ${mtfData.designation}`, 'error');
+                        this._addOutput(`Your clearance level (${userClearance}) is insufficient.`, 'error');
+                        this._addOutput(`Required clearance: ${requiredClearance}`, 'warning');
+                        this._addOutput('This access attempt has been logged.', 'warning');
+                        return;
+                    }
+                    
+                    // Format and display the MTF data
+                    this._addOutput('');
+                    this._addOutput(`=== MOBILE TASK FORCE: ${mtfData.designation} ===`, 'info');
+                    this._addOutput('');
+                    
+                    // Basic information
+                    this._addOutput(`Designation: ${mtfData.designation}`);
+                    this._addOutput(`Codename: "${mtfData.name}"`);
+                    this._addOutput(`Status: ${mtfData.status}`, mtfData.status === 'Active' ? 'success' : 'error');
+                    this._addOutput(`Specialization: ${mtfData.specialization}`);
+                    this._addOutput(`Clearance Required: ${mtfData.clearanceRequired}`);
+                    this._addOutput(`Formation Date: ${mtfData.formation}`);
+                    this._addOutput('');
+                    
+                    // Description
+                    if (mtfData.description) {
+                        this._addOutput('DESCRIPTION:', 'info');
+                        this._addOutput(mtfData.description);
+                        this._addOutput('');
+                    }
+                    
+                    // Operational History
+                    if (mtfData.operationalHistory) {
+                        this._addOutput('OPERATIONAL HISTORY:', 'info');
+                        this._addOutput(mtfData.operationalHistory);
+                        this._addOutput('');
+                    }
+                    
+                    // Command Structure
+                    if (mtfData.commandStructure) {
+                        this._addOutput('COMMAND STRUCTURE:', 'info');
+                        this._addOutput(mtfData.commandStructure);
+                        this._addOutput('');
+                    }
+                    
+                    this._addOutput(`=== END OF FILE ===`, 'info');
+                });
+                
+                // Implement more commands here as needed
+                setupViewSCPCommands();
+            }
+            
+            // Call this after the database is loaded
+            document.addEventListener('scpDatabaseReady', function() {
+                initializeUserInfo();
+                setupTerminalCommands();
+                updateScpFilesList();
+            });
+            
+            // Apply theme function (missing implementation)
+            function applyTheme(theme) {
+                const root = document.documentElement;
+                
+                // Store the theme preference
+                localStorage.setItem('selectedTheme', theme);
+                
+                // Apply theme-specific CSS variables
+                switch (theme) {
+                    case 'default':
+                        root.style.setProperty('--main-color', '#80FF80');
+                        root.style.setProperty('--background-color', '#131');
+                        root.style.setProperty('--hover-text-color', '#131');
+                        root.style.setProperty('--hover-background-color', '#80FF80');
+                        root.style.setProperty('--background-gradient', 'radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #121)');
+                        break;
+                        
+                    case 'night':
+                        root.style.setProperty('--main-color', '#00CFFF');
+                        root.style.setProperty('--background-color', '#001');
+                        root.style.setProperty('--hover-text-color', '#001');
+                        root.style.setProperty('--hover-background-color', '#00CFFF');
+                        root.style.setProperty('--background-gradient', 'radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #001)');
+                        break;
+                        
+                    case 'ice':
+                        root.style.setProperty('--main-color', '#AADEE6');
+                        root.style.setProperty('--background-color', '#0A1D29');
+                        root.style.setProperty('--hover-text-color', '#0A1D29');
+                        root.style.setProperty('--hover-background-color', '#AADEE6');
+                        root.style.setProperty('--background-gradient', 'radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #071520)');
+                        break;
+                        
+                    case 'demon':
+                        root.style.setProperty('--main-color', '#FF5050');
+                        root.style.setProperty('--background-color', '#240000');
+                        root.style.setProperty('--hover-text-color', '#240000');
+                        root.style.setProperty('--hover-background-color', '#FF5050');
+                        root.style.setProperty('--background-gradient', 'radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #1A0000)');
+                        break;
+                        
+                    case 'galaxy':
+                        root.style.setProperty('--main-color', '#C576F6');
+                        root.style.setProperty('--background-color', '#12001F');
+                        root.style.setProperty('--hover-text-color', '#12001F');
+                        root.style.setProperty('--hover-background-color', '#C576F6');
+                        root.style.setProperty('--background-gradient', 'radial-gradient(ellipse 1000% 100% at 50% 90%, transparent, #0C0017)');
+                        break;
+                }
+            }
+
+            // Function to implement SCP commands
+            function setupViewSCPCommands() {
+                // Command to view SCP files
+                terminal.addCommand('view', function(args) {
+                    if (args.length === 0) {
+                        this._addOutput('Usage: view [scp-id]', 'error');
+                        this._addOutput('Example: view scp-173');
+                        return;
+                    }
+                    
+                    // Parse SCP ID
+                    let scpId = args[0].toLowerCase().replace(/^scp-?/, 'scp');
+                    
+                    // Try to retrieve SCP data from the database
+                    let scpData = null;
+                    
+                    if (typeof scpDatabase !== 'undefined' && typeof scpDatabase.getSCP === 'function') {
+                        // Try with and without the scp prefix
+                        scpData = scpDatabase.getSCP(scpId) || scpDatabase.getSCP(scpId.replace(/^scp/, ''));
+                    }
+                    
+                    // If we couldn't find the SCP in the database, check if it exists in the data store
+                    if (!scpData && typeof SCPDataStore !== 'undefined') {
+                        const scpNumber = scpId.replace(/\D/g, '');
+                        const fullScpId = `SCP-${scpNumber}`;
+                        
+                        if (SCPDataStore[fullScpId]) {
+                            const storeData = SCPDataStore[fullScpId];
+                            
+                            // Convert to the format expected by the viewer
+                            scpData = {
+                                item: storeData.id,
+                                object_class: storeData.objectClass,
+                                containment_procedures: storeData.specialContainmentProcedures,
+                                description: storeData.description,
+                                clearance_required: storeData.clearanceRequired
+                            };
+                        }
+                    }
+                    
+                    // If we still couldn't find the SCP data
+                    if (!scpData) {
+                        this._addOutput(`No data found for SCP: ${scpId}`, 'error');
+                        this._addOutput('The file may not exist or you may not have sufficient clearance.', 'warning');
+                        return;
+                    }
+                    
+                    // Check user clearance
+                    const userClearance = typeof scpDatabase !== 'undefined' ? 
+                        scpDatabase.getUserClearance() : 'Level 1';
+                        
+                    const requiredClearance = scpData.clearance_required || 'Level 1';
+                    const userClearanceLevel = parseInt(userClearance.replace('Level ', ''));
+                    const requiredClearanceLevel = parseInt(requiredClearance.replace('Level ', ''));
+                    
+                    if (userClearanceLevel < requiredClearanceLevel) {
+                        this._addOutput(`[ACCESS DENIED] - SCP File: ${scpData.item}`, 'error');
+                        this._addOutput(`Your clearance level (${userClearance}) is insufficient.`, 'error');
+                        this._addOutput(`Required clearance: ${requiredClearance}`, 'warning');
+                        this._addOutput('This access attempt has been logged.', 'warning');
+                        return;
+                    }
+                    
+                    // Format and display the SCP data
+                    this._addOutput('');
+                    this._addOutput(`=== SCP FILE: ${scpData.item} ===`, 'info');
+                    this._addOutput('');
+                    
+                    // Basic information
+                    this._addOutput(`Object Class: ${scpData.object_class}`);
+                    this._addOutput(`Clearance Required: ${scpData.clearance_required || 'Level 1'}`);
+                    this._addOutput('');
+                    
+                    // Special Containment Procedures
+                    if (scpData.containment_procedures) {
+                        this._addOutput('SPECIAL CONTAINMENT PROCEDURES:', 'info');
+                        this._addOutput(scpData.containment_procedures.trim());
+                        this._addOutput('');
+                    }
+                    
+                    // Description
+                    if (scpData.description) {
+                        this._addOutput('DESCRIPTION:', 'info');
+                        this._addOutput(scpData.description.trim());
+                        this._addOutput('');
+                    }
+                    
+                    this._addOutput(`=== END OF FILE ===`, 'info');
+                });
+                
+                // Alias 'scp' command to 'view'
+                terminal.addCommand('scp', function(args) {
+                    this.executeCommand(`view ${args.join(' ')}`);
+                });
+                
+                // Command to list all SCPs
+                terminal.addCommand('list-scps', function() {
+                    this._addOutput('Retrieving accessible SCP records...', 'info');
+                    
+                    let accessibleSCPs = [];
+                    
+                    if (typeof scpDatabase !== 'undefined' && typeof scpDatabase.getAccessibleSCPs === 'function') {
+                        accessibleSCPs = scpDatabase.getAccessibleSCPs();
+                    }
+                    
+                    if (accessibleSCPs.length === 0) {
+                        this._addOutput('No SCP records accessible for your clearance level.', 'warning');
+                        return;
+                    }
+                    
+                    // Display results
+                    this._addOutput(`Found ${accessibleSCPs.length} accessible SCP records:`, 'success');
+                    
+                    // Sort by ID
+                    accessibleSCPs.sort((a, b) => {
+                        const aNum = parseInt(a.item.replace(/\D/g, '')) || 0;
+                        const bNum = parseInt(b.item.replace(/\D/g, '')) || 0;
+                        return aNum - bNum;
+                    });
+                    
+                    // Display SCPs in groups by object class
+                    const scpsByClass = {};
+                    
+                    accessibleSCPs.forEach(scp => {
+                        const objectClass = scp.object_class || 'Unknown';
+                        if (!scpsByClass[objectClass]) {
+                            scpsByClass[objectClass] = [];
+                        }
+                        scpsByClass[objectClass].push(scp);
+                    });
+                    
+                    for (const objectClass in scpsByClass) {
+                        this._addOutput(`\n${objectClass}-class SCPs:`, 'info');
+                        
+                        scpsByClass[objectClass].forEach(scp => {
+                            const idDisplay = scp.item.padEnd(10);
+                            this._addOutput(`${idDisplay} - Clearance: ${scp.clearance_required || 'Level 1'}`);
+                        });
+                    }
+                    
+                    this._addOutput('\nUse "view [scp-id]" to display detailed information.');
+                });
+                
+                // Command to search for SCPs
+                terminal.addCommand('search', function(args) {
+                    if (args.length === 0) {
+                        this._addOutput('Usage: search [term]', 'error');
+                        this._addOutput('Example: search plague');
+                        return;
+                    }
+                    
+                    const searchTerm = args.join(' ').toLowerCase();
+                    this._addOutput(`Searching for: "${searchTerm}"...`, 'info');
+                    
+                    let results = [];
+                    
+                    // Search in SCPDataStore if available
+                    if (typeof SCPDataStore !== 'undefined') {
+                        const userClearance = typeof scpDatabase !== 'undefined' ? 
+                            parseInt(scpDatabase.getUserClearance().replace('Level ', '')) : 1;
+                            
+                        for (const key in SCPDataStore) {
+                            const scp = SCPDataStore[key];
+                            const requiredClearance = parseInt((scp.clearanceRequired || 'Level 1').replace('Level ', ''));
+                            
+                            // Check clearance
+                            if (requiredClearance > userClearance) {
+                                continue;
+                            }
+                            
+                            // Check if term appears in various fields
+                            const matchesName = (scp.name || '').toLowerCase().includes(searchTerm);
+                            const matchesId = (scp.id || '').toLowerCase().includes(searchTerm);
+                            const matchesDesc = (scp.description || '').toLowerCase().includes(searchTerm);
+                            
+                            if (matchesName || matchesId || matchesDesc) {
+                                results.push({
+                                    id: scp.id,
+                                    name: scp.name || '',
+                                    objectClass: scp.objectClass || 'Unknown',
+                                    clearanceRequired: scp.clearanceRequired || 'Level 1'
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (results.length === 0) {
+                        this._addOutput('No matching records found.', 'warning');
+                        return;
+                    }
+                    
+                    // Display results
+                    this._addOutput(`Found ${results.length} matching records:`, 'success');
+                    
+                    // Sort by ID
+                    results.sort((a, b) => {
+                        const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
+                        const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
+                        return aNum - bNum;
+                    });
+                    
+                    results.forEach(result => {
+                        this._addOutput(`${result.id} - ${result.name} (${result.objectClass})`);
+                    });
+                    
+                    this._addOutput('\nUse "view [scp-id]" to display detailed information.');
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

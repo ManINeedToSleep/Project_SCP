@@ -1,0 +1,20 @@
+{
+    "item": "SCP-049",
+    "object_class": "Euclid",
+    "containment_procedures": "SCP-049 is contained within a Standard Secure Humanoid Containment Cell in Research Sector-02 at Site-19. SCP-049 must be sedated before any attempts to transport it. During transport, SCP-049 must be secured within a Class III Humanoid Restriction Harness (including a locking collar and extension restraints) and monitored by no fewer than two armed guards.",
+    "description": "SCP-049 is a humanoid entity, approximately 1.9 meters in height, which bears the appearance of a medieval plague doctor. SCP-049 wears a black robe and a beaked mask obscuring its face. The garments appear to be sewn onto SCP-049's body, with autopsy revealing no seams, stitches, or means of removal. X-rays indicate SCP-049 has a humanoid skeletal structure beneath its outer layer, though the skull is misshapen and bears abnormal protrusions.",
+    "abilities": "SCP-049 is capable of causing death with a touch, referred to as the 'Pestilence' or 'The Great Dying.' Subjects killed by SCP-049 are then transformed into instances of SCP-049-2, reanimated corpses that follow basic commands from SCP-049.",
+    "personality": "SCP-049 is generally cooperative with Foundation staff and will engage in polite conversation when addressed. It speaks fluent English, as well as several other languages, though claims its native language is from an older time. It expresses a desire to 'cure' the 'Pestilence', which it claims to see within most human beings.",
+    "notes": [
+        "SCP-049 was discovered in England during an investigation of a series of unknown disappearances.",
+        "SCP-049 believes its cure for the 'Pestilence' involves extensive physical modification of subjects, often resulting in their death.",
+        "Despite being generally compliant, SCP-049 will become hostile if it believes it can 'cure' a subject but is prevented from doing so."
+    ],
+    "associated_media": {
+        "image": "scp049.jpg",
+        "videos": [
+            "https://www.youtube.com/embed/sQCRSW4gOXk",
+            "https://www.youtube.com/embed/stnKvKLu1n8"
+        ]
+    }
+} 

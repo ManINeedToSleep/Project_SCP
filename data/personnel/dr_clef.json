@@ -1,0 +1,20 @@
+{
+    "name": "Dr. Alto Clef",
+    "id": "Research Director-031",
+    "clearance_level": "Level 4",
+    "position": "Research Director, Reality Benders Division",
+    "status": "Active (Anomalous)",
+    "access_code": "Research Director-031",
+    "description": "Dr. Alto Clef is a senior researcher specializing in the containment and neutralization of reality-bending entities. Dr. Clef has demonstrated extensive knowledge of occult practices and esoteric phenomena. His personnel file has been heavily redacted by O5 command. Photographs, video, and audio recordings of Dr. Clef's face and voice are subject to spontaneous corruption.",
+    "biography": "Origins unknown. Dr. Clef joined the Foundation in ████. Prior history suggests involvement with the Global Occult Coalition and possibly other Groups of Interest. Dr. Clef claims to have been responsible for the neutralization of [REDACTED] before joining the Foundation. These claims have not been verified but are treated as credible based on his demonstrated expertise.",
+    "anomalous_properties": "Dr. Clef appears to possess reality-altering abilities of his own, though the exact nature and extent remain classified at the highest levels. He demonstrates an uncanny resistance to reality-bending effects and has survived numerous encounters with Keter-class entities that would typically result in fatality. Standard reality anchors demonstrate unusual behavior in his presence. Dr. Clef's physical appearance cannot be reliably recorded; all attempts result in visual data corruption or replacement with various unrelated images, most commonly that of a jester or harlequin.",
+    "psychological_profile": "Psychological evaluation indicates sociopathic tendencies and a marked lack of empathy. However, Dr. Clef maintains a strict adherence to Foundation protocols and has repeatedly demonstrated loyalty to the organization's goals. His unorthodox methods are tolerated due to his exceptional success rate in neutralizing threats. Approach with caution.",
+    "notable_achievements": [
+        "Developed containment procedures for 17 Keter-class entities",
+        "Successfully neutralized 9 hostile reality benders",
+        "Authored the 'Reality Bender Identification and Containment Manual'",
+        "Created specialized training for MTF Omega-12 ('Reality Benders')"
+    ],
+    "restrictions": "Dr. Clef is not permitted access to SCP-085, SCP-166, or any SCP object with potential reproductive capabilities. Dr. Clef is not to be left alone with any reality-bending SCPs for extended periods. All interactions with humanoid SCPs must be monitored by at least one Level 3 personnel. Dr. Clef is forbidden from entering any on-site chapels or places of worship.",
+    "notes": "Despite his unprofessional demeanor, Dr. Clef has repeatedly demonstrated his value to the Foundation. His unconventional methods, while troubling, have proven effective. - O5-7"
+} 

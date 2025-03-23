@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP Foundation - Secure Database</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <link rel="icon" type="image/png" href="../../assets/images/favicon.ico">
+    <style>
+        /* Dashboard-specific styles */
+        .dashboard-header {
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--main-color);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #user-info {
+            opacity: 0.9;
+            font-size: 1.1em;
+            text-shadow: 0 0 5px var(--main-color);
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        #clearance-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--main-color);
+            margin-left: 10px;
+            animation: pulseBadge 2s infinite;
+            font-weight: bold;
+        }
+        
+        .text {
+            position: static !important;
+            transform: none !important;
+            top: auto !important;
+            left: auto !important;
+            width: 90% !important;
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            padding: 30px 20px !important;
+            text-align: center;
+        }
+        
+        #dashboard-nav {
+            margin: 25px 0;
+            padding: 10px;
+            border: 1px solid var(--main-color);
+            background-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 15px rgba(128, 255, 128, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 1s ease-in-out;
+            border-radius: 3px;
+        }
+        
+        #dashboard-nav a {
+            padding: 8px 15px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 2px;
+        }
+        
+        #dashboard-nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: var(--main-color);
+            transition: width 0.3s ease;
+        }
+        
+        #dashboard-nav a:hover::before {
+            width: 100%;
+        }
+        
+        .active-nav {
+            border: 1px solid var(--main-color);
+            background-color: rgba(128, 255, 128, 0.1);
+            box-shadow: 0 0 8px rgba(128, 255, 128, 0.4);
+        }
+        
+        .active-nav::before {
+            content: '> ';
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            animation: slideUp 0.8s ease-out;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(128, 255, 128, 0.3);
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid var(--main-color);
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(128, 255, 128, 0.2);
+        }
+        
+        .data-table tr:hover {
+            background-color: rgba(128, 255, 128, 0.05);
+        }
+        
+        .view-button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: var(--main-color);
+            border: 1px solid var(--main-color);
+            padding: 6px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+            font-family: monospace;
+        }
+        
+        .view-button:hover {
+            background-color: var(--main-color);
+            color: var(--background-color);
+            box-shadow: 0 0 10px rgba(128, 255, 128, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .class-safe {
+            color: #3cb371; /* Medium Sea Green */
+            font-weight: bold;
+        }
+        
+        .class-euclid {
+            color: #ffa500; /* Orange */
+            font-weight: bold;
+        }
+        
+        .class-keter {
+            color: #ff6347; /* Tomato Red */
+            font-weight: bold;
+        }
+        
+        .class-thaumiel {
+            color: #4169e1; /* Royal Blue */
+            font-weight: bold;
+        }
+        
+        .class-neutralized {
+            color: #a9a9a9; /* Dark Gray */
+            font-weight: bold;
+        }
+        
+        .status-active {
+            color: #32cd32; /* Lime Green */
+            font-weight: bold;
+        }
+        
+        .status-inactive {
+            color: #dc143c; /* Crimson */
+            font-weight: bold;
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--main-color);
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(128, 255, 128, 0.3);
+            animation: fadeIn 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .dropdown li {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(128, 255, 128, 0.1);
+        }
+        
+        .dropdown li:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown li:hover {
+            background-color: rgba(128, 255, 128, 0.1);
+        }
+        
+        .dropdown a {
+            color: var(--main-color);
+            text-decoration: none;
+            display: block;
+        }
+        
+        .theme-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .theme-content {
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--main-color);
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(128, 255, 128, 0.4);
+            animation: zoomIn 0.4s ease;
+            border-radius: 4px;
+        }
+        
+        .theme-content h3 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--main-color);
+            padding-bottom: 10px;
+        }
+        
+        .theme-option {
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            border: 1px solid rgba(128, 255, 128, 0.3);
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+        
+        .theme-option:hover {
+            background-color: rgba(128, 255, 128, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+        }
+        
+        .modal-content {
+            background-color: var(--background-color);
+            border: 3px double var(--main-color);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(128, 255, 128, 0.5);
+            animation: zoomIn 0.4s ease;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--main-color);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .close-button:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 10px var(--main-color);
+        }
+        
+        /* Animation for flashing cursor */
+        .cursor-flash {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: var(--main-color);
+            animation: cursorBlink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        
+        /* Section content styling */
+        .section-container {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--main-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .section-header {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(128, 255, 128, 0.3);
+        }
+        
+        /* Documentation block styling */
+        .documentation-block {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--main-color);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .documentation-block h3 {
+            margin-top: 0;
+            color: var(--main-color);
+            font-size: 1.2em;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Enhanced loading screen styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: var(--main-color);
+            max-width: 80%;
+        }
+        
+        .loading-content h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--main-color);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--main-color);
+            margin: 15px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--main-color);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--main-color);
+        }
+        
+        /* Access Badge Animation */
+        .access-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--main-color);
+            margin-left: 10px;
+            animation: pulseBadge 2s infinite;
+            border-radius: 2px;
+        }
+        
+        @keyframes pulseBadge {
+            0% { box-shadow: 0 0 5px rgba(128, 255, 128, 0.3); }
+            50% { box-shadow: 0 0 10px rgba(128, 255, 128, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(128, 255, 128, 0.3); }
+        }
+        
+        /* SCP Documentation Styles */
+        .section-header {
+            position: relative;
+            padding-left: 20px;
+            margin: 20px 0 10px;
+            font-weight: bold;
+        }
+        
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background-color: var(--main-color);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        
+        /* Dashboard content areas */
+        #scp-list, #personnel-list, #mtf-list {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(128, 255, 128, 0.2);
+            border-radius: 4px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        /* Loading indicator */
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #dashboard-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #dashboard-nav div {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .data-table {
+                font-size: 0.9em;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1>SCP DATABASE</h1>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <p id="loading-text">Establishing secure connection...</p>
+            <div class="scanline"></div>
+        </div>
+    </div>
+
+    <div id="main-content" class="terminal" style="display:none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto;">
+        <div class="scanline"></div>
+        <div class="text" style="padding-top: 20px;">
+            <div id="welcome-header" class="dashboard-header">
+                <terminal-typer id="dashboard-header" text="<span style='font-size: 150%; letter-spacing: 2px;'>SCP FOUNDATION</span><br><span style='font-size: 120%;'>SECURE DATABASE</span>" speed="40" delay="300" cursor="false" html-mode="true"></terminal-typer>
+                <terminal-typer id="dashboard-subheader" text="<div style='margin-top: 10px; width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--main-color), transparent);'></div>
+                <div style='text-align: center; width: 100%; padding: 8px 0; margin: 10px auto;'>Authorized Personnel: Level 4 Access</div>
+                <div style='margin-top: 10px; width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--main-color), transparent);'></div>" speed="20" delay="1500" cursor="false" html-mode="true"></terminal-typer>
+            </div>
+            
+            <div id="dashboard-nav" style="margin-top: 20px; display:none;">
+                <div>
+                    <a href="#" id="view-scps" class="active-nav" onclick="switchTab('scp'); return false;">SCP Database</a>
+                    <a href="#" id="view-personnel" onclick="switchTab('personnel'); return false;">Personnel Files</a>
+                    <a href="#" id="view-mtf" onclick="switchTab('mtf'); return false;">Mobile Task Forces</a>
+                </div>
+                <div>
+                    <a href="terminal.html">Access Terminal</a>
+                    <a href="#" id="logout-button">Log Out</a>
+                </div>
+            </div>
+            
+            <div id="dashboard-content" style="margin-top: 20px;">
+                <div class="section-container">
+                    <div id="database-section">
+                        <terminal-typer id="database-header" text="<div class='section-header' style='text-align: left; padding-left: 0; margin-bottom: 20px;'>
+SECURE DATABASE ACCESS - CONFIDENTIAL</div>
+
+<p style='text-align: left; margin-bottom: 15px;'>Select a file to view detailed information:</p>" speed="15" delay="2000" cursor="false" html-mode="true"></terminal-typer>
+
+                        <div id="scp-list" style="display:none; margin-top: 25px; opacity: 1; text-align: left;">
+                            <!-- SCP list will be dynamically populated here -->
+                            <div class="loading-indicator">
+                                <img src="../../../assets/images/loading.gif" alt="Loading" style="width: 40px; height: 40px;">
+                                <p>Loading database entries...</p>
+                            </div>
+                        </div>
+                        
+                        <div id="personnel-list" style="display:none; margin-top: 25px;">
+                            <!-- Personnel list will be dynamically populated here -->
+                            <div class="loading-indicator">
+                                <img src="../../../assets/images/loading.gif" alt="Loading" style="width: 40px; height: 40px;">
+                                <p>Loading personnel files...</p>
+                            </div>
+                        </div>
+                        
+                        <div id="mtf-list" style="display:none; margin-top: 25px;">
+                            <!-- MTF list will be dynamically populated here -->
+                            <div class="documentation-block">
+                                <h3>Mobile Task Forces Database</h3>
+                                <p>This section is currently under development. Mobile Task Force information will be available in a future update.</p>
+                                <p>For urgent MTF information, please contact your site director or division head.</p>
+                                <div class="section-header">Available Information</div>
+                                <ul>
+                                    <li>MTF Alpha-1 "Red Right Hand" - O5 Council direct action task force</li>
+                                    <li>MTF Epsilon-11 "Nine-Tailed Fox" - Specialized in containment breaches</li>
+                                    <li>MTF Nu-7 "Hammer Down" - Heavy combat and containment force</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gear Icon and Dropdown -->
+        <div class="settings">
+            <img id="gear-icon" src="../../assets/images/gear.png" alt="Settings" style="width: 30px; height: 30px; cursor: pointer; filter: drop-shadow(0 0 3px var(--main-color));">
+            <div id="dropdown" class="dropdown" style="display: none;">
+                <ul>
+                    <li id="theme-button">Change Theme</li>
+                    <li><a href="#" id="logout-menu">Sign Out</a></li>
+                    <li><a href="user-password-change.html">Update Credentials</a></li>
+                    <li><a href="#" id="toggle-sound">Toggle Sound</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Modal -->
+    <div id="theme-modal" class="theme-modal" style="display: none;">
+        <div class="theme-content">
+            <h3>Select a Theme</h3>
+            <div class="theme-option" data-theme="default">Default Theme</div>
+            <div class="theme-option" data-theme="night">Night Time Theme</div>
+            <div class="theme-option" data-theme="ice">Ice Theme</div>
+            <div class="theme-option" data-theme="demon">Demon Theme</div>
+            <div class="theme-option" data-theme="galaxy">Galaxy Theme</div>
+        </div>
+    </div>
+
+    <!-- SCP Viewer Modal -->
+    <div id="scp-viewer-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="close-scp-viewer">&times;</span>
+            <div id="scp-viewer-container">
+                <scp-viewer id="scp-viewer" scp-id=""></scp-viewer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personnel Viewer Modal -->
+    <div id="personnel-viewer-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="close-personnel-viewer">&times;</span>
+            <div id="personnel-viewer-container">
+                <personnel-file id="personnel-viewer" personnel-id=""></personnel-file>
+            </div>
+        </div>
+    </div>
+
+    <!-- MTF Viewer Modal -->
+    <div id="mtf-viewer-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="close-mtf-viewer">&times;</span>
+            <div id="mtf-viewer-container">
+                <mtf-viewer id="mtf-viewer" mtf-id=""></mtf-viewer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load necessary scripts -->
+    <script src="../../components/terminal-typer.js"></script>
+    <script src="../../components/scp-viewer.js"></script>
+    <script src="../../components/personnel-file.js"></script>
+    <script src="../../components/mtf-viewer.js"></script>
+    <script src="../../data/scp-data.js"></script>
+    <script src="../../data/personnel-data.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script>
+        // Global variables for elements
+        let scpList, personnelList, mtfList, userInfo, clearanceBadge, dashboardNav;
+        let loadingScreen, mainContent, loadingText, progress;
+        let loadingInterval;
+        let clearanceLevel = "Level 4"; // Default clearance level
+        
+        // Global function to switch between tabs - accessible from onclick attributes
+        function switchTab(tabId) {
+            if (!scpList || !personnelList || !mtfList) {
+                console.error("List elements not initialized");
+                return;
+            }
+            
+            // Hide all content divs
+            scpList.style.display = 'none';
+            personnelList.style.display = 'none';
+            mtfList.style.display = 'none';
+            
+            // Show the selected div
+            if (tabId === 'scp') {
+                scpList.style.display = 'block';
+                if (!scpList.querySelector('.data-table')) {
+                    populateSCPList();
+                }
+            } else if (tabId === 'personnel') {
+                personnelList.style.display = 'block';
+                if (!personnelList.querySelector('.data-table')) {
+                    populatePersonnelList();
+                }
+            } else if (tabId === 'mtf') {
+                mtfList.style.display = 'block';
+                if (!mtfList.querySelector('.data-table')) {
+                    populateMTFList();
+                }
+            }
+            
+            // Update active nav
+            const navLinks = document.querySelectorAll('#dashboard-nav a');
+            if (navLinks) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active-nav');
+                });
+                const activeLink = document.getElementById('view-' + tabId);
+                if (activeLink) {
+                    activeLink.classList.add('active-nav');
+                }
+            }
+        }
+        
+        // Global function to open SCP viewer modal
+        function openSCPViewer(scpId) {
+            const scpViewer = document.getElementById('scp-viewer');
+            const scpViewerModal = document.getElementById('scp-viewer-modal');
+            
+            if (scpViewer && scpViewerModal) {
+                scpViewer.setAttribute('scp-id', scpId);
+                scpViewerModal.style.display = 'flex';
+            }
+        }
+        
+        // Global function to open Personnel viewer modal
+        function openPersonnelViewer(personnelId) {
+            const personnelViewer = document.getElementById('personnel-viewer');
+            const personnelViewerModal = document.getElementById('personnel-viewer-modal');
+            
+            if (personnelViewer && personnelViewerModal) {
+                personnelViewer.setAttribute('personnel-id', personnelId);
+                personnelViewerModal.style.display = 'flex';
+            }
+        }
+        
+        // Global function to open MTF viewer modal
+        function openMTFViewer(mtfId) {
+            const mtfViewer = document.getElementById('mtf-viewer');
+            const mtfViewerModal = document.getElementById('mtf-viewer-modal');
+            
+            if (mtfViewer && mtfViewerModal) {
+                mtfViewer.setAttribute('mtf-id', mtfId);
+                mtfViewerModal.style.display = 'flex';
+            }
+        }
+        
+        // Function to populate SCP list
+        function populateSCPList() {
+            if (!scpList) return;
+            
+            scpList.innerHTML = '<div class="loading-indicator"><img src="../../../assets/images/loading.gif" alt="Loading" style="width: 40px; height: 40px;"><p>Loading database entries...</p></div>';
+            
+            setTimeout(() => {
+                scpList.innerHTML = ''; // Clear existing content
+                
+                if (!scpDatabase) {
+                    scpList.innerHTML = '<p class="error">Error: Database not available</p>';
+                    return;
+                }
+                
+                const accessibleSCPs = scpDatabase.getAccessibleSCPs();
+                
+                if (accessibleSCPs.length === 0) {
+                    scpList.innerHTML = `
+                        <div class="documentation-block">
+                            <p>No SCP files available for your clearance level.</p>
+                            <p>Current clearance: ${clearanceLevel}</p>
+                            <p>To access additional files, please request a clearance level increase from your site director.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Create a table for SCP entries
+                const table = document.createElement('table');
+                table.className = 'data-table';
+                
+                // Create table header
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                
+                // Define header cells
+                const headers = ['Item #', 'Object Class', 'Brief Description', 'Actions'];
+                headers.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Create table body
+                const tbody = document.createElement('tbody');
+                
+                accessibleSCPs.forEach(scp => {
+                    const row = document.createElement('tr');
+                    
+                    // Item number cell
+                    const itemCell = document.createElement('td');
+                    itemCell.textContent = scp.item;
+                    row.appendChild(itemCell);
+                    
+                    // Object class cell
+                    const classCell = document.createElement('td');
+                    classCell.textContent = scp.object_class;
+                    classCell.className = `class-${scp.object_class.toLowerCase()}`;
+                    row.appendChild(classCell);
+                    
+                    // Description cell (truncated)
+                    const descCell = document.createElement('td');
+                    const descText = scp.description || "No description available";
+                    const briefDesc = descText.split('.')[0] + '...';
+                    descCell.textContent = briefDesc;
+                    row.appendChild(descCell);
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    const viewButton = document.createElement('button');
+                    viewButton.textContent = 'View File';
+                    viewButton.className = 'view-button';
+                    viewButton.setAttribute('data-scp-id', scp.item.toLowerCase().replace(/[- ]/g, ''));
+                    viewButton.addEventListener('click', function() {
+                        openSCPViewer(this.getAttribute('data-scp-id'));
+                    });
+                    actionsCell.appendChild(viewButton);
+                    row.appendChild(actionsCell);
+                    
+                    tbody.appendChild(row);
+                });
+                
+                table.appendChild(tbody);
+                scpList.appendChild(table);
+            }, 500); // Reduced loading delay
+        }
+        
+        // Function to populate Personnel list
+        function populatePersonnelList() {
+            if (!personnelList) return;
+            
+            personnelList.innerHTML = '<div class="loading-indicator"><img src="../../../assets/images/loading.gif" alt="Loading" style="width: 40px; height: 40px;"><p>Loading personnel files...</p></div>';
+            
+            setTimeout(() => {
+                personnelList.innerHTML = ''; // Clear existing content
+                
+                // Check clearance level - personnel files require level 2+
+                const clearanceNum = parseInt(clearanceLevel.split(' ')[1]);
+                
+                if (clearanceNum < 2) {
+                    personnelList.innerHTML = `
+                        <div class="documentation-block" style="border-left-color: #ff6347;">
+                            <h3 style="color: #ff6347;">[ACCESS DENIED]</h3>
+                            <p>Your current clearance level (${clearanceLevel}) does not grant access to personnel files.</p>
+                            <p>Minimum required clearance: Level 2</p>
+                            <p>This access attempt has been logged.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Create a table for personnel entries
+                const table = document.createElement('table');
+                table.className = 'data-table';
+                
+                // Create table header
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                ['Name', 'ID', 'Position', 'Department', 'Status', 'Actions'].forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Create table body
+                const tbody = document.createElement('tbody');
+                
+                // Try to get personnel data from PersonnelDataStore first
+                let personnelEntries = [];
+                
+                if (typeof PersonnelDataStore !== 'undefined' && typeof getPersonnelByClearance === 'function') {
+                    // Use personnel data from PersonnelDataStore
+                    personnelEntries = getPersonnelByClearance(clearanceNum);
+                } else if (scpDatabase && Object.keys(scpDatabase.personnel).length > 0) {
+                    // Fall back to scpDatabase if available
+                    personnelEntries = Object.values(scpDatabase.personnel);
+                } else {
+                    personnelList.innerHTML = '<p>No personnel files available.</p>';
+                    return;
+                }
+                
+                if (personnelEntries.length === 0) {
+                    personnelList.innerHTML = '<p>No personnel files available for your clearance level.</p>';
+                    return;
+                }
+                
+                personnelEntries.forEach(person => {
+                    if (!person) return;
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = person.name || 'Unknown';
+                    row.appendChild(nameCell);
+                    
+                    // ID cell
+                    const idCell = document.createElement('td');
+                    idCell.textContent = person.id || 'Unknown';
+                    row.appendChild(idCell);
+                    
+                    // Position cell
+                    const positionCell = document.createElement('td');
+                    positionCell.textContent = person.position || 'Unknown';
+                    row.appendChild(positionCell);
+                    
+                    // Department cell
+                    const deptCell = document.createElement('td');
+                    deptCell.textContent = person.department || 'Unknown';
+                    row.appendChild(deptCell);
+                    
+                    // Status cell
+                    const statusCell = document.createElement('td');
+                    statusCell.textContent = person.status || 'Unknown';
+                    const statusLower = (person.status || '').toLowerCase();
+                    statusCell.className = statusLower.includes('active') ? 'status-active' : 'status-inactive';
+                    row.appendChild(statusCell);
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    const viewButton = document.createElement('button');
+                    viewButton.textContent = 'View File';
+                    viewButton.className = 'view-button';
+                    viewButton.setAttribute('data-personnel-id', person.id);
+                    
+                    viewButton.addEventListener('click', function() {
+                        openPersonnelViewer(this.getAttribute('data-personnel-id'));
+                    });
+                    actionsCell.appendChild(viewButton);
+                    row.appendChild(actionsCell);
+                    
+                    tbody.appendChild(row);
+                });
+                
+                table.appendChild(tbody);
+                personnelList.appendChild(table);
+                
+                // Add additional information
+                const infoBlock = document.createElement('div');
+                infoBlock.className = 'documentation-block';
+                infoBlock.style.marginTop = '25px';
+                infoBlock.innerHTML = `
+                    <h3>Personnel Database</h3>
+                    <p>The Foundation's personnel records contain classified information about researchers, field agents, and staff members.</p>
+                    <p>For detailed information about a specific staff member, select "View File" from the table above.</p>
+                `;
+                personnelList.appendChild(infoBlock);
+            }, 1000); // Reduced loading delay
+        }
+        
+        // Function to populate MTF list
+        function populateMTFList() {
+            if (!mtfList) return;
+            
+            mtfList.innerHTML = '<div class="loading-indicator"><img src="../../../assets/images/loading.gif" alt="Loading" style="width: 40px; height: 40px;"><p>Loading task force data...</p></div>';
+            
+            setTimeout(() => {
+                mtfList.innerHTML = ''; // Clear existing content
+                
+                // Check clearance level - MTF files require level 2+
+                const clearanceNum = parseInt(clearanceLevel.split(' ')[1]);
+                
+                if (clearanceNum < 2) {
+                    mtfList.innerHTML = `
+                        <div class="documentation-block" style="border-left-color: #ff6347;">
+                            <h3 style="color: #ff6347;">[ACCESS DENIED]</h3>
+                            <p>Your current clearance level (${clearanceLevel}) does not grant access to Mobile Task Force files.</p>
+                            <p>Minimum required clearance: Level 2</p>
+                            <p>This access attempt has been logged.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Define MTF data - in a real app, this would come from the database
+                const mtfData = [
+                    {
+                        id: 'alpha-1',
+                        designation: 'Alpha-1',
+                        name: '"Red Right Hand"',
+                        specialization: 'Direct action on behalf of O5 Council',
+                        status: 'Active'
+                    },
+                    {
+                        id: 'epsilon-11',
+                        designation: 'Epsilon-11',
+                        name: '"Nine-Tailed Fox"',
+                        specialization: 'Containment breach operations',
+                        status: 'Active'
+                    },
+                    {
+                        id: 'nu-7',
+                        designation: 'Nu-7',
+                        name: '"Hammer Down"',
+                        specialization: 'Heavy combat response',
+                        status: 'Active'
+                    },
+                    {
+                        id: 'omega-12',
+                        designation: 'Omega-12',
+                        name: '"Achilles\' Heels"',
+                        specialization: 'Reality restructuring anomalies',
+                        status: 'Decommissioned'
+                    },
+                    {
+                        id: 'beta-7',
+                        designation: 'Beta-7',
+                        name: '"Maz Hatters"',
+                        specialization: 'Hazardous materials',
+                        status: 'Active'
+                    },
+                    {
+                        id: 'delta-5',
+                        designation: 'Delta-5',
+                        name: '"Front Runners"',
+                        specialization: 'Advanced reconnaissance',
+                        status: 'Active'
+                    },
+                    {
+                        id: 'eta-10',
+                        designation: 'Eta-10',
+                        name: '"See No Evil"',
+                        specialization: 'Visual cognitohazards',
+                        status: 'Active'
+                    }
+                ];
+                
+                // Create a table for MTF entries
+                const table = document.createElement('table');
+                table.className = 'data-table';
+                
+                // Create table header
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                
+                // Define header cells
+                const headers = ['Designation', 'Nickname', 'Specialization', 'Status', 'Actions'];
+                headers.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Create table body
+                const tbody = document.createElement('tbody');
+                
+                mtfData.forEach(mtf => {
+                    const row = document.createElement('tr');
+                    
+                    // Designation cell
+                    const designationCell = document.createElement('td');
+                    designationCell.textContent = mtf.designation;
+                    row.appendChild(designationCell);
+                    
+                    // Name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = mtf.name;
+                    row.appendChild(nameCell);
+                    
+                    // Specialization cell
+                    const specializationCell = document.createElement('td');
+                    specializationCell.textContent = mtf.specialization;
+                    row.appendChild(specializationCell);
+                    
+                    // Status cell
+                    const statusCell = document.createElement('td');
+                    statusCell.textContent = mtf.status;
+                    statusCell.className = mtf.status.toLowerCase().includes('active') ? 'status-active' : 'status-inactive';
+                    row.appendChild(statusCell);
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    const viewButton = document.createElement('button');
+                    viewButton.textContent = 'View File';
+                    viewButton.className = 'view-button';
+                    viewButton.setAttribute('data-mtf-id', mtf.id);
+                    viewButton.addEventListener('click', function() {
+                        openMTFViewer(this.getAttribute('data-mtf-id'));
+                    });
+                    actionsCell.appendChild(viewButton);
+                    row.appendChild(actionsCell);
+                    
+                    tbody.appendChild(row);
+                });
+                
+                table.appendChild(tbody);
+                mtfList.appendChild(table);
+                
+                // Add additional information
+                const infoBlock = document.createElement('div');
+                infoBlock.className = 'documentation-block';
+                infoBlock.style.marginTop = '25px';
+                infoBlock.innerHTML = `
+                    <h3>Mobile Task Forces Database</h3>
+                    <p>The Foundation maintains numerous Mobile Task Forces, each specialized for specific mission types or anomalous threats.</p>
+                    <p>For detailed information about a specific MTF, select "View File" from the table above.</p>
+                `;
+                mtfList.appendChild(infoBlock);
+                
+            }, 1000); // Simulate loading delay
+        }
+        
+        // Apply theme function
+        function applyTheme(theme) {
+            document.body.className = theme;
+            localStorage.setItem('selectedTheme', theme);
+            
+            // Theme-specific adjustments
+            switch(theme) {
+                case 'night':
+                    document.documentElement.style.setProperty('--main-color', '#00BFFF');
+                    document.documentElement.style.setProperty('--background-color', '#001');
+                    break;
+                case 'ice':
+                    document.documentElement.style.setProperty('--main-color', '#A0EEFF');
+                    document.documentElement.style.setProperty('--background-color', '#112233');
+                    break;
+                case 'demon':
+                    document.documentElement.style.setProperty('--main-color', '#FF5555');
+                    document.documentElement.style.setProperty('--background-color', '#220000');
+                    break;
+                case 'galaxy':
+                    document.documentElement.style.setProperty('--main-color', '#BA55D3');
+                    document.documentElement.style.setProperty('--background-color', '#111133');
+                    break;
+                default: // default theme
+                    document.documentElement.style.setProperty('--main-color', '#80FF80');
+                    document.documentElement.style.setProperty('--background-color', '#0F1910');
+                    break;
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize global element references
+            loadingScreen = document.getElementById('loading-screen');
+            mainContent = document.getElementById('main-content');
+            loadingText = document.getElementById('loading-text');
+            progress = document.querySelector('.progress');
+            scpList = document.getElementById('scp-list');
+            personnelList = document.getElementById('personnel-list');
+            mtfList = document.getElementById('mtf-list');
+            userInfo = document.getElementById('user-info');
+            clearanceBadge = document.getElementById('clearance-badge');
+            dashboardNav = document.getElementById('dashboard-nav');
+            
+            // Only continue if we have the necessary elements
+            if (!loadingScreen || !mainContent || !scpList || !personnelList || !mtfList) {
+                console.error("Required elements missing from DOM");
+                return;
+            }
+            
+            // Play typing sound effect
+            function playTypingSound() {
+                // This is a placeholder - add actual sound implementation if needed
+                console.log("Typing sound effect would play here");
+            }
+            
+            // Simulated loading messages
+            const loadingMessages = [
+                "Establishing secure connection...",
+                "Authenticating credentials...",
+                "Decrypting database...",
+                "Verifying clearance level...",
+                "Retrieving authorized files...",
+                "Access granted. Welcome to the SCP Foundation database."
+            ];
+            
+            let messageIndex = 0;
+            let width = 0;
+            
+            // Updated loading animation with progress bar
+            loadingInterval = setInterval(() => {
+                if (!loadingText || !progress) return;
+                
+                // Update progress bar
+                width += Math.floor(100 / loadingMessages.length);
+                if (width > 100) width = 100;
+                progress.style.width = width + '%';
+                
+                // Update loading message
+                loadingText.textContent = loadingMessages[messageIndex];
+                loadingText.style.opacity = 0;
+                setTimeout(() => {
+                    if (loadingText) loadingText.style.opacity = 1;
+                }, 200);
+                
+                messageIndex++;
+                
+                if (messageIndex >= loadingMessages.length) {
+                    clearInterval(loadingInterval);
+                    
+                    // Finish the progress bar animation
+                    if (progress) progress.style.width = '100%';
+                    
+                    // Show main content after loading completes
+                    setTimeout(() => {
+                        if (loadingScreen) loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            if (loadingScreen) loadingScreen.style.display = 'none';
+                            if (mainContent) mainContent.style.display = 'block';
+                            
+                            // After animations complete, show navigation and SCP list immediately
+                            if (dashboardNav) dashboardNav.style.display = 'flex';
+                            if (scpList) scpList.style.display = 'block';
+                            populateSCPList();
+                        }, 300);
+                    }, 500);
+                }
+            }, 600);
+            
+            // Get auth data from session storage
+            const authData = JSON.parse(sessionStorage.getItem('scp_auth') || '{}');
+            const username = authData.name || 'Authorized Personnel';
+            clearanceLevel = authData.clearanceLevel || 'Level 4';
+            
+            // Set user info
+            if (userInfo) userInfo.innerHTML = `<strong>${username}</strong> | Department: Research`;
+            if (clearanceBadge) clearanceBadge.textContent = clearanceLevel;
+            
+            // Ensure user info is visible after loading
+            setTimeout(() => {
+                const welcomeHeader = document.getElementById('welcome-header');
+                if (welcomeHeader) welcomeHeader.style.opacity = '1';
+            }, 500);
+            
+            // Gear icon and theme handling
+            const gearIcon = document.getElementById('gear-icon');
+            const dropdown = document.getElementById('dropdown');
+            const themeModal = document.getElementById('theme-modal');
+            const themeButton = document.getElementById('theme-button');
+            
+            if (gearIcon && dropdown) {
+                gearIcon.addEventListener('click', function() {
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
+            }
+            
+            if (themeButton && themeModal) {
+                themeButton.addEventListener('click', function() {
+                    themeModal.style.display = 'flex';
+                    if (dropdown) dropdown.style.display = 'none';
+                });
+            }
+            
+            const themeOptions = document.querySelectorAll('.theme-option');
+            if (themeOptions.length && themeModal) {
+                themeOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const theme = this.getAttribute('data-theme');
+                        applyTheme(theme);
+                        themeModal.style.display = 'none';
+                    });
+                });
+            }
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                if (gearIcon && dropdown && !gearIcon.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+                
+                if (themeModal && event.target === themeModal) {
+                    themeModal.style.display = 'none';
+                }
+                
+                const scpViewerModal = document.getElementById('scp-viewer-modal');
+                if (scpViewerModal && event.target === scpViewerModal) {
+                    scpViewerModal.style.display = 'none';
+                }
+                
+                const personnelViewerModal = document.getElementById('personnel-viewer-modal');
+                if (personnelViewerModal && event.target === personnelViewerModal) {
+                    personnelViewerModal.style.display = 'none';
+                }
+                
+                const mtfViewerModal = document.getElementById('mtf-viewer-modal');
+                if (mtfViewerModal && event.target === mtfViewerModal) {
+                    mtfViewerModal.style.display = 'none';
+                }
+            });
+            
+            // Close buttons for modals
+            const closeSCPViewer = document.getElementById('close-scp-viewer');
+            if (closeSCPViewer) {
+                closeSCPViewer.addEventListener('click', function() {
+                    const modal = document.getElementById('scp-viewer-modal');
+                    if (modal) modal.style.display = 'none';
+                });
+            }
+            
+            const closePersonnelViewer = document.getElementById('close-personnel-viewer');
+            if (closePersonnelViewer) {
+                closePersonnelViewer.addEventListener('click', function() {
+                    const modal = document.getElementById('personnel-viewer-modal');
+                    if (modal) modal.style.display = 'none';
+                });
+            }
+            
+            const closeMTFViewer = document.getElementById('close-mtf-viewer');
+            if (closeMTFViewer) {
+                closeMTFViewer.addEventListener('click', function() {
+                    const modal = document.getElementById('mtf-viewer-modal');
+                    if (modal) modal.style.display = 'none';
+                });
+            }
+            
+            // Toggle sound
+            const toggleSound = document.getElementById('toggle-sound');
+            if (toggleSound) {
+                toggleSound.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert("Sound system toggled");
+                    if (dropdown) dropdown.style.display = 'none';
+                });
+            }
+            
+            // Handle logout
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sessionStorage.removeItem('scp_auth');
+                    window.location.href = 'login.html';
+                });
+            }
+            
+            const logoutMenu = document.getElementById('logout-menu');
+            if (logoutMenu) {
+                logoutMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sessionStorage.removeItem('scp_auth');
+                    window.location.href = 'login.html';
+                });
+            }
+            
+            // Allow skipping animations with escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    // Skip loading screen
+                    if (loadingScreen && loadingScreen.style.display !== 'none') {
+                        clearInterval(loadingInterval);
+                        loadingScreen.style.display = 'none';
+                        if (mainContent) mainContent.style.display = 'block';
+                        if (dashboardNav) dashboardNav.style.display = 'flex';
+                        if (scpList) scpList.style.display = 'block';
+                        populateSCPList();
+                    }
+                    
+                    // Complete all typing animations
+                    document.querySelectorAll('terminal-typer').forEach(typer => {
+                        if (typeof typer.complete === 'function') {
+                            typer.complete();
+                        }
+                    });
+                }
+            });
+            
+            // Listen for database ready event to update content
+            document.addEventListener('scpDatabaseReady', function() {
+                // Update user info with correct clearance
+                if (scpDatabase && typeof scpDatabase.getUserClearance === 'function') {
+                    clearanceLevel = scpDatabase.getUserClearance();
+                    if (clearanceBadge) clearanceBadge.textContent = clearanceLevel;
+                    
+                    // If SCP list is visible, update it
+                    if (scpList && scpList.style.display === 'block') {
+                        populateSCPList();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

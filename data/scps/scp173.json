@@ -1,0 +1,19 @@
+{
+    "item": "SCP-173",
+    "object_class": "Euclid",
+    "containment_procedures": "Item SCP-173 is to be kept in a locked container at all times. When personnel must enter SCP-173's container, no fewer than 3 may enter at any time and the door is to be relocked behind them. At all times, two persons must maintain direct eye contact with SCP-173 until all personnel have vacated and relocked the container.",
+    "description": "Moved to Site-19 1993. Origin is as yet unknown. It is constructed from concrete and rebar with traces of Krylon brand spray paint. SCP-173 is animate and extremely hostile. The object cannot move while within a direct line of sight. Line of sight must not be broken at any time with SCP-173. Personnel assigned to enter container are instructed to alert one another before blinking. Object is reported to attack by snapping the neck at the base of the skull, or by strangulation. In case of attack, personnel are to observe Class 4 hazardous object containment procedures.",
+    "addendum": "SCP-173 is the first SCP object ever documented and contained by the Foundation. It was discovered in the basement of a condemned building on [REDACTED] Street, and brought into custody following numerous deaths in the area, all of which appeared to be due to severe trauma to the neck region.",
+    "notes": [
+        "Due to its nature, SCP-173 has become something of a benchmark for new security and containment procedures.",
+        "The rebar inside SCP-173 appears to be non-standard, with metallurgic analysis showing unusual compounds that do not match any known manufacturer.",
+        "SCP-173 produces a small amount of unknown substance that accumulates around it, requiring weekly cleaning of its containment chamber."
+    ],
+    "associated_media": {
+        "image": "scp173.jpg",
+        "videos": [
+            "https://www.youtube.com/embed/wtvLn292-k4",
+            "https://www.youtube.com/embed/VgIfLxGZkQA"
+        ]
+    }
+} 

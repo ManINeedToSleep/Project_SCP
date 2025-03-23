@@ -1,0 +1,27 @@
+{
+    "name": "Dr. Jack Bright",
+    "id": "O5-963",
+    "clearance_level": "Level 4",
+    "position": "Site Director, Site-19",
+    "status": "Active (Immortal)",
+    "access_code": "O5-963",
+    "description": "Dr. Jack Bright is a senior staff member of the SCP Foundation. Due to an incident involving SCP-963, Dr. Bright's consciousness is now bound to the amulet, allowing him to possess any individual who comes into contact with it. This has resulted in Dr. Bright's effective immortality, as his consciousness can transfer to a new host when the current one expires.",
+    "biography": "Dr. Bright was born into a family deeply involved with the Foundation. Prior to the SCP-963 incident, he was known for his innovative containment procedures and psychological insights into anomalous entities. Following his 'death' and subsequent binding to SCP-963, Dr. Bright has continued to serve the Foundation in various capacities, though his mental stability has been called into question due to the psychological toll of his unique condition.",
+    "psychological_profile": "Dr. Bright exhibits signs of severe psychological strain due to his unique condition. Having experienced death and rebirth through numerous hosts, he displays a cavalier attitude toward danger and mortality. Foundation psychologists have noted increasing signs of reckless behavior and dark humor as coping mechanisms. Despite these concerns, Dr. Bright maintains a core commitment to the Foundation's mission and has proven invaluable in numerous containment scenarios.",
+    "notable_incidents": [
+        {
+            "id": "Incident-963-7",
+            "description": "Dr. Bright attempted to use SCP-682 as a host, resulting in a containment breach and the temporary destruction of Site-██'s lower levels."
+        },
+        {
+            "id": "Incident-231-Bright",
+            "description": "Dr. Bright's unauthorized adjustment to containment procedures for SCP-231 resulted in [DATA EXPUNGED]. O5 Council issued formal reprimand."
+        },
+        {
+            "id": "Protocol Violation-42",
+            "description": "Dr. Bright violated containment protocols by [REDACTED], claiming it was 'for science'. Resulted in the addition of items 237-249 to Document 963: 'Things Dr. Bright Is Not Allowed To Do At The Foundation'."
+        }
+    ],
+    "restrictions": "See Document 963: 'Things Dr. Bright Is Not Allowed To Do At The Foundation' for a comprehensive list of restrictions placed on Dr. Bright's activities.",
+    "current_research": "Project Immortal: Analysis of consciousness transfer mechanisms | Project Phoenix: Studies on SCP regenerative capabilities | SCP-682 Termination Attempts"
+} 

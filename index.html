@@ -3,46 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unknown Terminal</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>SCP Foundation Secure Access Portal</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
 </head>
-<body>   
-
-    <div id="loading-screen" class="terminal">
-        <div class="scanline"></div>
-        <div class="text">
-            <div class="dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1>INITIALIZING...</h1>
+            <div class="progress-bar">
+                <div class="progress"></div>
             </div>
+            <p id="loading-text">Establishing secure connection...</p>
         </div>
     </div>
 
-    <div id="main-content" class="terminal" style="display:none;">
-        <div class="scanline"></div>
+    <!-- Main Content -->
+    <div class="terminal" id="terminal">
+        <div class="scanlines"></div>
         <div class="text">
-            <p><span style="font-size: 150%;">Terminal #001</span></p>
-            <p>------</p>
-            <p>Welcome, Unknown User</p>
-            <p>------</p>
-            <br>
-            <br>
+            <terminal-typer id="welcome-text" text="SCP Foundation Secure Access Portal" speed="80" cursor="false" html-mode="true" style="font-size: 180%; text-align: center; display: block;"></terminal-typer>
+            
+            <terminal-typer id="welcome-subtext" text="------ Welcome, Unknown User ------" speed="50" delay="800" cursor="false" html-mode="true" style="text-align: center; display: block; font-size: 110%;"></terminal-typer>
+            
             <blockquote>
-                <div class="container">
-                    <p>Access to the database is forbidden for civillian citizens.</p>
-                    <ul>
-                        <li><p>If you are a civillian citizen, you will be contacted soon. Please remain calm.</p></li>
-                        <li><p>If you are a verified agent, please contact the agent above your level IMMEDIATELY.</p></li>
-                    </ul>
-                    <hr>
-                    <p class="footer">SCP Foundation</p>
-                </div>
+                <terminal-typer id="notice-text" delay="1500" speed="10" cursor="false" html-mode="true" text="<div class='container'>NOTICE: This terminal provides access to classified Foundation information. Unauthorized access is forbidden. All activities are monitored and recorded. Attempting to access information beyond your clearance level will result in immediate termination of employment and possible amnestic treatment.</div>"></terminal-typer>
             </blockquote>
-            <br><a href="login.html" target="_self">Continue</a>
+            
+            <terminal-typer id="access-text" delay="3000" speed="25" cursor="false" html-mode="true" text="<p>To proceed, you must authenticate your identity.</p><p>All personnel must have valid credentials to access Foundation systems.</p><p>Please be prepared to provide your assigned identification code and security clearance.</p>"></terminal-typer>
+            
+            <terminal-typer id="continue-text" delay="5000" speed="25" cursor="true" html-mode="true" text="<a href='templates/pages/login.html'>Continue to Authentication</a>"></terminal-typer>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="components/terminal-typer.js"></script>
+    <script>
+        // Handle loading screen
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const progress = document.querySelector('.progress');
+            const loadingText = document.getElementById('loading-text');
+            const terminal = document.getElementById('terminal');
+            const progressMessages = [
+                "Establishing secure connection...",
+                "Verifying system integrity...",
+                "Loading security protocols...",
+                "Initializing containment systems..."
+            ];
+            
+            let width = 0;
+            let messageIndex = 0;
+            
+            // Hide terminal initially
+            terminal.style.opacity = '0';
+            
+            // Progress bar animation
+            const interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(function() {
+                        loadingScreen.style.opacity = '0';
+                        terminal.style.opacity = '1';
+                        setTimeout(function() {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    }, 500);
+                } else {
+                    width += 2;
+                    progress.style.width = width + '%';
+                    
+                    // Update loading message at intervals
+                    if (width % 25 === 0 && messageIndex < progressMessages.length) {
+                        loadingText.textContent = progressMessages[messageIndex];
+                        messageIndex++;
+                    }
+                }
+            }, 30);
+            
+            // Allow skipping animations with escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    // Complete all typing animations
+                    document.querySelectorAll('terminal-typer').forEach(typer => {
+                        typer.complete();
+                    });
+                    
+                    // If loading screen is still visible, skip it
+                    if (loadingScreen.style.display !== 'none') {
+                        clearInterval(interval);
+                        loadingScreen.style.display = 'none';
+                        terminal.style.opacity = '1';
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
